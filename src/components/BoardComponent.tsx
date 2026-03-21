@@ -3,17 +3,24 @@ import { Fragment, useState, useEffect } from "react";
 import CellComponent from "./CellComponent";
 import { Cell } from "../models/Cell";
 import { Player } from "../models/Player";
+import { GameStatus } from "../models/GameStatus";
 interface BoardProps {
   board: Board;
   setBoard: (board: Board) => void;
   currentPlayer: Player | null;
   swapPlayer: () => void;
+  gameStatus: GameStatus;
 }
 
-function BoardComponent({ board, setBoard, swapPlayer, currentPlayer }: BoardProps) {
+function BoardComponent({ board, setBoard, swapPlayer, currentPlayer, gameStatus }: BoardProps) {
   const [selectedCell, setSelectedCell] = useState<Cell | null>(null);
   function selectFigure(cell: Cell) {
-    if (selectedCell && selectedCell !== cell && selectedCell.figure?.canMove(cell)) {
+    if (gameStatus !== GameStatus.ACTIVE) return; // Block moves if game over
+    if (
+      selectedCell &&
+      selectedCell !== cell &&
+      board.canMoveConsideringCheck(selectedCell, cell, currentPlayer?.color ?? null)
+    ) {
       selectedCell.moveFigure(cell);
       swapPlayer();
       setSelectedCell(null);
@@ -31,7 +38,7 @@ function BoardComponent({ board, setBoard, swapPlayer, currentPlayer }: BoardPro
   }, [selectedCell]);
 
   function hightlightCells() {
-    board.hightlightCells(selectedCell);
+    board.hightlightCells(selectedCell, currentPlayer?.color ?? null);
     updateBoard();
   }
 

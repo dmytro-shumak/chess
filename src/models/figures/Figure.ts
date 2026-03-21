@@ -24,8 +24,12 @@ export abstract class Figure {
 
   canMove(target: Cell): boolean {
     if (target.figure?.color === this.color) return false;
-    if (target.figure?.name === FigureNames.KING) return false;
     return true;
   }
+
+  canAttack(target: Cell): boolean {
+    return this.canMove(target);
+  }
+
   moveFigure(target: Cell) {}
 }

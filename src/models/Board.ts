@@ -6,7 +6,7 @@ import { Cell } from "./Cell";
 import { Colors } from "./Colors";
 import { Pawn } from "./figures/Pawn";
 import { Queen } from "./figures/Queen";
-import { Figure } from "./figures/Figure";
+import { Figure, FigureNames } from "./figures/Figure";
 
 export class Board {
   cells: Cell[][] = [];
@@ -27,14 +27,41 @@ export class Board {
     }
   }
 
-  public hightlightCells(selectedCell: Cell | null) {
+  public hightlightCells(selectedCell: Cell | null, currentPlayerColor: Colors | null) {
     for (let i = 0; i < this.cells.length; i++) {
       const row = this.cells[i];
       for (let j = 0; j < row.length; j++) {
         const target = row[j];
-        target.available = !!selectedCell?.figure?.canMove(target);
+        target.available = selectedCell
+          ? this.canMoveConsideringCheck(selectedCell, target, currentPlayerColor)
+          : false;
       }
     }
+  }
+
+  public canMoveConsideringCheck(source: Cell, target: Cell, currentPlayerColor: Colors | null): boolean {
+    if (!source.figure) return false;
+    if (currentPlayerColor === null) return false;
+    if (source.figure.color !== currentPlayerColor) return false;
+    if (!source.figure.canMove(target)) return false;
+
+    const originalTargetFigure = target.figure;
+    const originalSourceFigure = source.figure;
+
+    // simulate move
+    target.figure = source.figure;
+    source.figure = null;
+    if (target.figure) target.figure.cell = target;
+
+    const kingSafe = !this.isKingInCheck(currentPlayerColor);
+
+    // revert
+    source.figure = originalSourceFigure;
+    target.figure = originalTargetFigure;
+    if (originalSourceFigure) originalSourceFigure.cell = source;
+    if (originalTargetFigure) originalTargetFigure.cell = target;
+
+    return kingSafe;
   }
 
   public getCopyBoard(): Board {
@@ -89,5 +116,80 @@ export class Board {
     this.addBishops();
     this.addKnights();
     this.addRooks();
+  }
+
+  public isUnderAttack(target: Cell, color: Colors): boolean {
+    for (let i = 0; i < this.cells.length; i++) {
+      const row = this.cells[i];
+      for (let j = 0; j < row.length; j++) {
+        const cell = row[j];
+        if (cell.figure && cell.figure.color !== color) {
+          if (cell.figure.canMove(target)) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  public isKingInCheck(color: Colors): boolean {
+    const king = this.findKing(color);
+    if (!king) return false;
+    return this.isUnderAttack(king.cell, color);
+  }
+
+  public isCheckmate(color: Colors): boolean {
+    if (!this.isKingInCheck(color)) return false;
+    return !this.hasValidMoves(color);
+  }
+
+  public isStalemate(color: Colors): boolean {
+    if (this.isKingInCheck(color)) return false;
+    return !this.hasValidMoves(color);
+  }
+
+  private hasValidMoves(color: Colors): boolean {
+    for (let i = 0; i < this.cells.length; i++) {
+      const row = this.cells[i];
+      for (let j = 0; j < row.length; j++) {
+        const cell = row[j];
+        if (cell.figure && cell.figure.color === color) {
+          for (let x = 0; x < 8; x++) {
+            for (let y = 0; y < 8; y++) {
+              const target = this.getCell(x, y);
+              if (cell.figure?.canMove(target)) {
+                // Simulate move
+                const originalFigure: Figure | null = target.figure;
+                const originalCellFigure: Figure | null = cell.figure;
+                target.figure = cell.figure;
+                cell.figure = null;
+                if (target.figure) target.figure.cell = target;
+                const kingInCheck = this.isKingInCheck(color);
+                // Revert
+                cell.figure = originalCellFigure;
+                target.figure = originalFigure;
+                if (originalCellFigure) originalCellFigure.cell = cell;
+                if (!kingInCheck) return true;
+              }
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  private findKing(color: Colors): Figure | null {
+    for (let i = 0; i < this.cells.length; i++) {
+      const row = this.cells[i];
+      for (let j = 0; j < row.length; j++) {
+        const cell = row[j];
+        if (cell.figure && cell.figure.name === FigureNames.KING && cell.figure.color === color) {
+          return cell.figure;
+        }
+      }
+    }
+    return null;
   }
 }

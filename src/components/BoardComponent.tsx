@@ -52,11 +52,8 @@ function BoardComponent({ board, setBoard, swapPlayer, currentPlayer, gameStatus
   }
 
   return (
-    <div>
-      <h3 className="text-center mb-5 text-2xl font-bold">
-        Current player is {currentPlayer?.color}
-      </h3>
-      <div className="grid grid-cols-8 grid-rows-8 w-[640px] h-[640px] border-2 border-slate-900 shadow-xl">
+    <div className="my-1">
+      <div className="grid h-[640px] w-[640px] max-w-full grid-cols-8 grid-rows-8 border-2 border-slate-900 shadow-xl">
         {board.cells.map((row, index) => (
           <Fragment key={index}>
             {row.map((cell) => (

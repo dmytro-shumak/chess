@@ -11,7 +11,7 @@ function CellComponent({ cell, selected, selectFigure }: CellProps) {
     <div
       className={["cell", cell.color, selected ? "selected" : ""].join(" ")}
       onClick={() => selectFigure(cell)}
-      style={{ background: cell.available && cell.figure ? "green" : "" }}
+      style={{ background: cell.available ? "rgba(0, 255, 0, 0.4)" : "" }}
     >
       {cell.available && !cell.figure && <div className="available"></div>}
       {cell.figure?.logo && <img src={cell.figure.logo} alt={cell.figure.name} />}

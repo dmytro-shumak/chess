@@ -37,6 +37,14 @@ export class Pawn extends Figure {
     return false;
   }
 
+  canAttack(target: Cell): boolean {
+    const direction = this.color === Colors.BLACK ? 1 : -1;
+    return (
+      target.y === this.cell.y + direction &&
+      (target.x === this.cell.x + 1 || target.x === this.cell.x - 1)
+    );
+  }
+
   moveFigure(target: Cell): void {
     super.moveFigure(target);
     this.isFirstStep = false;

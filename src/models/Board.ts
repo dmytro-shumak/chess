@@ -43,7 +43,18 @@ export class Board {
     if (!source.figure) return false;
     if (currentPlayerColor === null) return false;
     if (source.figure.color !== currentPlayerColor) return false;
-    if (!source.figure.canMove(target)) return false;
+    if (!source.figure.canMove(target)) {
+      console.log(
+        "canMoveConsideringCheck: figure cannot move",
+        JSON.stringify({
+          figure: source.figure.name,
+          color: source.figure.color,
+          source: [source.x, source.y],
+          target: [target.x, target.y],
+        })
+      );
+      return false;
+    }
 
     const originalTargetFigure = target.figure;
     const originalSourceFigure = source.figure;
@@ -118,19 +129,24 @@ export class Board {
     this.addRooks();
   }
 
-  public isUnderAttack(target: Cell, color: Colors): boolean {
+  public getAttackers(target: Cell, color: Colors) {
+    const attackers = [] as Figure[];
     for (let i = 0; i < this.cells.length; i++) {
       const row = this.cells[i];
       for (let j = 0; j < row.length; j++) {
         const cell = row[j];
         if (cell.figure && cell.figure.color !== color) {
-          if (cell.figure.canMove(target)) {
-            return true;
+          if (cell.figure.canAttack(target)) {
+            attackers.push(cell.figure);
           }
         }
       }
     }
-    return false;
+    return attackers;
+  }
+
+  public isUnderAttack(target: Cell, color: Colors): boolean {
+    return this.getAttackers(target, color).length > 0;
   }
 
   public isKingInCheck(color: Colors): boolean {

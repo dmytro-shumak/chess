@@ -15,11 +15,13 @@ export abstract class Figure {
   logo: typeof logo | null;
   name: FigureNames;
   id: number;
+  isFirstMove: boolean;
   constructor(public color: Colors, public cell: Cell) {
     this.cell.figure = this;
     this.logo = null;
     this.name = FigureNames.FIGURE;
     this.id = Math.random();
+    this.isFirstMove = true;
   }
 
   canMove(target: Cell): boolean {
@@ -31,5 +33,7 @@ export abstract class Figure {
     return this.canMove(target);
   }
 
-  moveFigure(target: Cell) {}
+  moveFigure(target: Cell) {
+    this.isFirstMove = false;
+  }
 }

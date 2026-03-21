@@ -1,5 +1,5 @@
 import { Board } from "../models/Board";
-import { Fragment, useState, useEffect } from "react";
+import { Fragment, useState, useLayoutEffect } from "react";
 import CellComponent from "./CellComponent";
 import { Cell } from "../models/Cell";
 import { Player } from "../models/Player";
@@ -25,15 +25,19 @@ function BoardComponent({ board, setBoard, swapPlayer, currentPlayer, gameStatus
       swapPlayer();
       setSelectedCell(null);
     } else if (selectedCell === cell) {
+      board.hightlightCells(null, currentPlayer?.color ?? null);
+      updateBoard();
       setSelectedCell(null);
     } else if (cell.figure) {
       if (cell.figure.color === currentPlayer?.color) {
+        board.hightlightCells(cell, currentPlayer?.color ?? null);
+        updateBoard();
         setSelectedCell(cell);
       }
     }
   }
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     hightlightCells();
   }, [selectedCell]);
 
@@ -49,10 +53,10 @@ function BoardComponent({ board, setBoard, swapPlayer, currentPlayer, gameStatus
 
   return (
     <div>
-      <h3 style={{ textAlign: "center", marginBottom: 20, fontSize: 20 }}>
+      <h3 className="text-center mb-5 text-2xl font-bold">
         Current player is {currentPlayer?.color}
       </h3>
-      <div className="board">
+      <div className="grid grid-cols-8 grid-rows-8 w-[640px] h-[640px] border-2 border-slate-900 shadow-xl">
         {board.cells.map((row, index) => (
           <Fragment key={index}>
             {row.map((cell) => (

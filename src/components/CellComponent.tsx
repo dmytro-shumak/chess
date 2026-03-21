@@ -1,4 +1,6 @@
 import { Cell } from "../models/Cell";
+import { Colors } from "../models/Colors";
+import { classNames } from "../utils/classNames";
 
 interface CellProps {
   cell: Cell;
@@ -7,14 +9,37 @@ interface CellProps {
 }
 
 function CellComponent({ cell, selected, selectFigure }: CellProps) {
+  const showMoveHint = cell.available && !selected;
+  const isCaptureHint = showMoveHint && Boolean(cell.figure);
+
   return (
     <div
-      className={["cell", cell.color, selected ? "selected" : ""].join(" ")}
+      className={classNames(
+        "relative flex h-20 w-20 cursor-pointer items-center justify-center border border-black/10",
+        {
+          "bg-chess-light": cell.color === Colors.WHITE && !selected,
+          "bg-chess-dark": cell.color === Colors.BLACK && !selected,
+          "bg-chess-selected": selected,
+        },
+      )}
       onClick={() => selectFigure(cell)}
-      style={{ background: cell.available && cell.figure ? "green" : "" }}
     >
-      {cell.available && !cell.figure && <div className="available"></div>}
-      {cell.figure?.logo && <img src={cell.figure.logo} alt={cell.figure.name} />}
+      {showMoveHint && (
+        <span
+          className={classNames(
+            "pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-green-500 shadow-sm",
+            isCaptureHint ? "z-0 h-10 w-10 opacity-50" : "z-1 h-5 w-5",
+          )}
+          aria-hidden
+        />
+      )}
+      {cell.figure?.logo && (
+        <img
+          className="relative z-10 w-3/4 select-none"
+          src={cell.figure.logo}
+          alt={cell.figure.name}
+        />
+      )}
     </div>
   );
 }

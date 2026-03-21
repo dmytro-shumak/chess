@@ -7,9 +7,9 @@ interface LostFiguresProps {
 
 function LostFigures({ title, figures }: LostFiguresProps) {
   return (
-    <div className="lost-wrapper">
-      <h3>{title}</h3>
-      <div className="lost">
+    <div className="h-[calc(40vh-60px)] w-[calc(15vw-60px)] p-8 ml-12 rounded-[20%]">
+      <h3 className="text-center">{title}</h3>
+      <div className="h-full flex flex-col flex-wrap">
         {figures.map((figure) => (
           <div key={figure.id}>
             {figure.name}{" "}

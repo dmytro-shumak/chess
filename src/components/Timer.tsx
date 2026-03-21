@@ -39,9 +39,14 @@ function Timer({ currentPlayer, restart }: TimerProps) {
   }
 
   return (
-    <div className="timer">
+    <div className="mr-5 p-8 rounded-[20%]">
       <div>
-        <button onClick={handleRestart}>Restart game</button>
+        <button
+          onClick={handleRestart}
+          className="w-full cursor-pointer bg-transparent border-4 border-lime-500 rounded-2xl p-4"
+        >
+          Restart game
+        </button>
       </div>
       <h2>Black player - {blackTime}</h2>
       <h2>White player - {whiteTime}</h2>

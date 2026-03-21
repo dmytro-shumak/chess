@@ -1,6 +1,7 @@
 import { Board } from "./Board";
 import { Colors } from "./Colors";
 import { Figure } from "./figures/Figure";
+import { Pawn } from "./figures/Pawn";
 
 export class Cell {
   available: boolean; // could move
@@ -83,13 +84,22 @@ export class Cell {
   }
 
   moveFigure(target: Cell) {
-    if (this.figure && this.figure?.canMove(target)) {
-      this.figure.moveFigure(target); //for pawn
-      if (target.figure) {
-        this.addLostFigure(target.figure);
-      }
-      target.setFigure(this.figure);
-      this.figure = null;
+    if (!this.figure || !this.figure.canMove(target)) {
+      return;
     }
+
+    this.figure.moveFigure(target);
+    if (target.figure) {
+      this.addLostFigure(target.figure);
+    }
+
+    const nextFigure = this.figure instanceof Pawn ? this.figure.promoteIfNeeded() : null;
+    if (nextFigure) {
+      target.setFigure(nextFigure);
+    } else {
+      target.setFigure(this.figure);
+    }
+
+    this.figure = null;
   }
 }

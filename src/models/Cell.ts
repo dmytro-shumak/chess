@@ -115,6 +115,9 @@ export class Cell {
       this.addLostFigure(target.figure);
     }
 
+    // Update figure's cell reference BEFORE checking promotion
+    movingFigure.cell = target;
+
     const nextFigure = movingFigure instanceof Pawn ? movingFigure.promoteIfNeeded() : null;
     if (nextFigure) {
       target.setFigure(nextFigure);

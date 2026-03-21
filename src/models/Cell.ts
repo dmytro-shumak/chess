@@ -88,18 +88,47 @@ export class Cell {
       return;
     }
 
-    this.figure.moveFigure(target);
+    const movingFigure = this.figure;
+    const fromY = this.y;
+    const fromX = this.x;
+    const isEnPassant =
+      movingFigure instanceof Pawn &&
+      this.board.enPassantTarget === target &&
+      !target.figure;
+
+    if (isEnPassant) {
+      const captureY = movingFigure.color === Colors.WHITE ? target.y + 1 : target.y - 1;
+      const capturedCell = this.board.getCell(target.x, captureY);
+      if (capturedCell.figure) {
+        this.addLostFigure(capturedCell.figure);
+        capturedCell.figure = null;
+      }
+    }
+
+    const isDoublePawnMove =
+      movingFigure instanceof Pawn &&
+      Math.abs(target.y - fromY) === 2;
+
+    movingFigure.moveFigure(target);
+
     if (target.figure) {
       this.addLostFigure(target.figure);
     }
 
-    const nextFigure = this.figure instanceof Pawn ? this.figure.promoteIfNeeded() : null;
+    const nextFigure = movingFigure instanceof Pawn ? movingFigure.promoteIfNeeded() : null;
     if (nextFigure) {
       target.setFigure(nextFigure);
     } else {
-      target.setFigure(this.figure);
+      target.setFigure(movingFigure);
     }
 
     this.figure = null;
+
+    if (isDoublePawnMove && target.figure instanceof Pawn) {
+      const enPassantY = (fromY + target.y) / 2;
+      this.board.enPassantTarget = this.board.getCell(target.x, enPassantY);
+    } else {
+      this.board.enPassantTarget = null;
+    }
   }
 }

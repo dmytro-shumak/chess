@@ -12,6 +12,7 @@ export class Board {
   cells: Cell[][] = [];
   lostBlackFigures: Figure[] = [];
   lostWhiteFigures: Figure[] = [];
+  enPassantTarget: Cell | null = null;
 
   public initCells() {
     for (let i = 0; i < 8; i++) {
@@ -43,18 +44,7 @@ export class Board {
     if (!source.figure) return false;
     if (currentPlayerColor === null) return false;
     if (source.figure.color !== currentPlayerColor) return false;
-    if (!source.figure.canMove(target)) {
-      console.log(
-        "canMoveConsideringCheck: figure cannot move",
-        JSON.stringify({
-          figure: source.figure.name,
-          color: source.figure.color,
-          source: [source.x, source.y],
-          target: [target.x, target.y],
-        })
-      );
-      return false;
-    }
+    if (!source.figure.canMove(target)) return false;
 
     const originalTargetFigure = target.figure;
     const originalSourceFigure = source.figure;

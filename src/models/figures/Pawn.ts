@@ -34,6 +34,17 @@ export class Pawn extends Figure {
     ) {
       return true;
     }
+
+    // en passant
+    if (
+      this.cell.board.enPassantTarget &&
+      target === this.cell.board.enPassantTarget &&
+      target.y === this.cell.y + direction &&
+      (target.x === this.cell.x + 1 || target.x === this.cell.x - 1)
+    ) {
+      return true;
+    }
+
     return false;
   }
 

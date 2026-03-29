@@ -16,12 +16,7 @@ interface TimerProps {
   capturedByBlack: import("../models/figures/Figure").Figure[];
 }
 
-function formatMmSs(totalSeconds: number): string {
-  const s = Math.max(0, totalSeconds);
-  const m = Math.floor(s / 60);
-  const r = s % 60;
-  return `${String(m).padStart(2, "0")}:${String(r).padStart(2, "0")}`;
-}
+const INITIAL_TIME = 300; // 5 minutes in seconds
 
 function Timer({
   children,
@@ -34,8 +29,8 @@ function Timer({
   capturedByWhite,
   capturedByBlack,
 }: TimerProps) {
-  const [blackTime, setBlackTime] = useState(300);
-  const [whiteTime, setWhiteTime] = useState(300);
+  const [blackTime, setBlackTime] = useState(INITIAL_TIME);
+  const [whiteTime, setWhiteTime] = useState(INITIAL_TIME);
   const timer = useRef<null | ReturnType<typeof setInterval>>(null);
 
   useEffect(() => {
@@ -71,14 +66,14 @@ function Timer({
   }
 
   function handleRestart() {
-    setWhiteTime(300);
-    setBlackTime(300);
+    setWhiteTime(INITIAL_TIME);
+    setBlackTime(INITIAL_TIME);
     restart();
   }
 
   function handleStart() {
-    setWhiteTime(300);
-    setBlackTime(300);
+    setWhiteTime(INITIAL_TIME);
+    setBlackTime(INITIAL_TIME);
     startGame();
   }
 

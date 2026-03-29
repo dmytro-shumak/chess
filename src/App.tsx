@@ -84,7 +84,7 @@ function App() {
           />
         </Timer>
       </div>
-    </div>
+    </div> 
   );
 }
 

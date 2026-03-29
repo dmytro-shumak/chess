@@ -11,7 +11,7 @@ interface TimerProps {
   whitePlayer: Player;
   blackPlayer: Player;
   restart: () => void;
-  startGame: () => void;
+  clocksStarted: boolean;
   gameStatus: GameStatus;
   capturedByWhite: import("../models/figures/Figure").Figure[];
   capturedByBlack: import("../models/figures/Figure").Figure[];
@@ -25,7 +25,7 @@ function Timer({
   whitePlayer,
   blackPlayer,
   restart,
-  startGame,
+  clocksStarted,
   gameStatus,
   capturedByWhite,
   capturedByBlack,
@@ -35,7 +35,7 @@ function Timer({
   const timer = useRef<null | ReturnType<typeof setInterval>>(null);
 
   useEffect(() => {
-    if (gameStatus !== GameStatus.ACTIVE) {
+    if (gameStatus !== GameStatus.ACTIVE || !clocksStarted) {
       if (timer.current) {
         clearInterval(timer.current);
         timer.current = null;
@@ -56,7 +56,7 @@ function Timer({
         timer.current = null;
       }
     };
-  }, [currentPlayer, gameStatus]);
+  }, [currentPlayer, gameStatus, clocksStarted]);
 
   function decrementBlackTimer() {
     setBlackTime((prev) => prev - 1);
@@ -70,12 +70,6 @@ function Timer({
     setWhiteTime(INITIAL_TIME);
     setBlackTime(INITIAL_TIME);
     restart();
-  }
-
-  function handleStart() {
-    setWhiteTime(INITIAL_TIME);
-    setBlackTime(INITIAL_TIME);
-    startGame();
   }
 
   const blackActive =
@@ -100,7 +94,10 @@ function Timer({
           capturedFigures={capturedByWhite}
         />
       </div>
-      <GameSidePanel gameStatus={gameStatus} onStartGame={handleStart} onRestart={handleRestart} />
+      <GameSidePanel
+        restartDisabled={!clocksStarted && gameStatus === GameStatus.ACTIVE}
+        onRestart={handleRestart}
+      />
     </div>
   );
 }

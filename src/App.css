@@ -11,10 +11,6 @@
     @apply relative w-full overflow-hidden rounded-xl px-4 py-5 text-center text-lg font-bold tracking-tight text-white transition sm:text-xl;
   }
 
-  .ui-game-button--start {
-    @apply bg-linear-to-br from-emerald-500 via-emerald-600 to-emerald-800 shadow-glow-emerald focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-inset;
-  }
-
   .ui-game-button--restart {
     @apply bg-linear-to-br from-amber-500 via-amber-600 to-amber-900 shadow-glow-amber focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-inset;
   }

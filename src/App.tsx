@@ -14,7 +14,9 @@ const PLAYER_BLACK = new Player(Colors.BLACK, "Black");
 function App() {
   const [board, setBoard] = useState(new Board());
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
-  const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.NOT_STARTED);
+  const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.ACTIVE);
+  // the timer is not started until the first move is made
+  const [clocksStarted, setClocksStarted] = useState(false);
 
   function initBoard() {
     const newBoard = new Board();
@@ -24,13 +26,10 @@ function App() {
     setCurrentPlayer(PLAYER_WHITE);
   }
 
-  function startGame() {
-    setGameStatus(GameStatus.ACTIVE);
-  }
-
   function restart() {
     initBoard();
     setGameStatus(GameStatus.ACTIVE);
+    setClocksStarted(false);
   }
 
   useEffect(() => {
@@ -38,6 +37,7 @@ function App() {
   }, []);
 
   function swapPlayer() {
+    setClocksStarted(true);
     const nextPlayer = currentPlayer?.color === Colors.WHITE ? PLAYER_BLACK : PLAYER_WHITE;
     setCurrentPlayer(nextPlayer);
 
@@ -69,7 +69,7 @@ function App() {
           whitePlayer={PLAYER_WHITE}
           blackPlayer={PLAYER_BLACK}
           restart={restart}
-          startGame={startGame}
+          clocksStarted={clocksStarted}
           gameStatus={gameStatus}
           capturedByWhite={board.lostBlackFigures}
           capturedByBlack={board.lostWhiteFigures}

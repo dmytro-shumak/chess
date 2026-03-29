@@ -1,22 +1,18 @@
-import { GameStatus } from "../models/GameStatus";
-
 interface GameSidePanelProps {
-  gameStatus: GameStatus;
-  onStartGame: () => void;
+  restartDisabled: boolean;
   onRestart: () => void;
 }
 
-function GameSidePanel({ gameStatus, onStartGame, onRestart }: GameSidePanelProps) {
-  const isNotStarted = gameStatus === GameStatus.NOT_STARTED;
-
+function GameSidePanel({ restartDisabled, onRestart }: GameSidePanelProps) {
   return (
     <aside className="ui-side-panel">
       <button
         type="button"
-        onClick={isNotStarted ? onStartGame : onRestart}
-        className={isNotStarted ? "ui-game-button ui-game-button--start" : "ui-game-button ui-game-button--restart"}
+        disabled={restartDisabled}
+        onClick={onRestart}
+        className="ui-game-button ui-game-button--restart disabled:pointer-events-none disabled:opacity-40 disabled:grayscale"
       >
-        <span className="relative z-10 drop-shadow-sm">{isNotStarted ? "Start game" : "Restart"}</span>
+        <span className="relative z-10 drop-shadow-sm">Restart</span>
       </button>
 
       <section className="flex min-h-[200px] flex-col rounded-xl border border-dashed border-slate-300/90 bg-white/60 p-4 shadow-inner">

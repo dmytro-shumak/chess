@@ -1,6 +1,6 @@
-import type { ComponentType, SVGProps } from "react";
 import { Colors } from "../Colors";
 import { Cell } from "../Cell";
+import type { SvgComponent } from "../../types/svg";
 
 export enum FigureNames {
   FIGURE = "Figure",
@@ -12,7 +12,7 @@ export enum FigureNames {
   BISHOP = "Bishop",
 }
 export abstract class Figure {
-  Logo: ComponentType<SVGProps<SVGSVGElement>> | null;
+  Logo: SvgComponent | null;
   name: FigureNames;
   id: number;
   isFirstMove: boolean;

@@ -1,7 +1,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
-import type { ComponentType, SVGProps } from "react";
 import { Colors } from "../models/Colors";
 import { FigureNames } from "../models/figures/Figure";
+import type { SvgComponent } from "../types/svg";
 import bishopDark from "../assets/bishop-dark.svg?react";
 import bishopLight from "../assets/bishop-white.svg?react";
 import knightDark from "../assets/knight-dark.svg?react";
@@ -17,9 +17,7 @@ export type PromotionChoice =
   | FigureNames.BISHOP
   | FigureNames.KNIGHT;
 
-type Logo = ComponentType<SVGProps<SVGSVGElement>>;
-
-const OPTIONS: { name: PromotionChoice; label: string; dark: Logo; light: Logo }[] = [
+const OPTIONS: { name: PromotionChoice; label: string; dark: SvgComponent; light: SvgComponent }[] = [
   { name: FigureNames.QUEEN, label: "Queen", dark: queenDark, light: queenLight },
   { name: FigureNames.ROOK, label: "Rook", dark: rookDark, light: rookLight },
   { name: FigureNames.BISHOP, label: "Bishop", dark: bishopDark, light: bishopLight },

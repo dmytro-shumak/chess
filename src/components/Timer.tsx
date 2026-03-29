@@ -2,7 +2,7 @@ import { Player } from "../models/Player";
 import { useState, useRef, useEffect, type ReactNode } from "react";
 import { Colors } from "../models/Colors";
 import { GameStatus } from "../models/GameStatus";
-import { classNames } from "../utils/classNames";
+import PlayerBar from "./PlayerBar";
 
 interface TimerProps {
   children: ReactNode;
@@ -12,6 +12,8 @@ interface TimerProps {
   restart: () => void;
   startGame: () => void;
   gameStatus: GameStatus;
+  capturedByWhite: import("../models/figures/Figure").Figure[];
+  capturedByBlack: import("../models/figures/Figure").Figure[];
 }
 
 function formatMmSs(totalSeconds: number): string {
@@ -29,6 +31,8 @@ function Timer({
   restart,
   startGame,
   gameStatus,
+  capturedByWhite,
+  capturedByBlack,
 }: TimerProps) {
   const [blackTime, setBlackTime] = useState(300);
   const [whiteTime, setWhiteTime] = useState(300);
@@ -78,55 +82,6 @@ function Timer({
     startGame();
   }
 
-  const bar = (opts: {
-    player: Player;
-    seconds: number;
-    active: boolean;
-    showRestart?: boolean;
-    isStart?: boolean;
-  }) => (
-    <div
-      className={classNames(
-        "flex w-[640px] max-w-full items-center justify-between gap-3 rounded-sm px-3 py-2.5 transition-colors",
-        opts.active
-          ? "border border-emerald-200 bg-emerald-50 text-chess-highlight ring-2 ring-chess-highlight/35"
-          : "border border-slate-200 bg-slate-100 text-slate-600"
-      )}
-    >
-      <div className="flex min-w-0 flex-1 items-center p-2">
-        <span
-          className={classNames(
-            "truncate text-sm font-semibold sm:text-base",
-            opts.active ? "text-chess-highlight" : "text-slate-600"
-          )}
-        >
-          {opts.player.name}
-        </span>
-      </div>
-      <div className="flex shrink-0 items-center gap-2">
-        <span
-          className={classNames(
-            "rounded px-2.5 py-1 font-mono text-sm tabular-nums sm:text-base",
-            opts.active
-              ? "bg-white text-chess-highlight shadow-sm"
-              : "bg-white/80 text-slate-700 shadow-sm"
-          )}
-        >
-          {formatMmSs(opts.seconds)}
-        </span>
-        {opts.showRestart && (
-          <button
-            type="button"
-            onClick={opts.isStart ? handleStart : handleRestart}
-            className="rounded px-2 py-1 text-xs font-medium text-slate-600 underline-offset-2 hover:text-slate-900 hover:underline"
-          >
-            {opts.isStart ? "Start" : "Restart"}
-          </button>
-        )}
-      </div>
-    </div>
-  );
-
   const blackActive =
     gameStatus === GameStatus.ACTIVE && currentPlayer?.color === Colors.BLACK;
   const whiteActive =
@@ -134,19 +89,23 @@ function Timer({
 
   return (
     <div className="flex w-full max-w-[640px] flex-col items-center gap-1">
-      {bar({
-        player: blackPlayer,
-        seconds: blackTime,
-        active: blackActive,
-        showRestart: true,
-        isStart: gameStatus === GameStatus.NOT_STARTED,
-      })}
+      <PlayerBar
+        player={blackPlayer}
+        seconds={blackTime}
+        active={blackActive}
+        actionLabel={gameStatus === GameStatus.NOT_STARTED ? "Start" : "Restart"}
+        onAction={gameStatus === GameStatus.NOT_STARTED ? handleStart : handleRestart}
+        capturedFigures={capturedByBlack}
+      />
       {children}
-      {bar({
-        player: whitePlayer,
-        seconds: whiteTime,
-        active: whiteActive,
-      })}
+      <PlayerBar
+        player={whitePlayer}
+        seconds={whiteTime}
+        active={whiteActive}
+        actionLabel=""
+        onAction={() => {}}
+        capturedFigures={capturedByWhite}
+      />
     </div>
   );
 }

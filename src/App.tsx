@@ -4,7 +4,6 @@ import { Board } from "./models/Board";
 import { useState, useEffect } from "react";
 import { Colors } from "./models/Colors";
 import { Player } from "./models/Player";
-import LostFigures from "./components/LostFigures";
 import Timer from "./components/Timer";
 import { GameStatus } from "./models/GameStatus";
 
@@ -73,6 +72,8 @@ function App() {
           restart={restart}
           startGame={startGame}
           gameStatus={gameStatus}
+          capturedByWhite={board.lostBlackFigures}
+          capturedByBlack={board.lostWhiteFigures}
         >
           <BoardComponent
             board={board}
@@ -82,10 +83,6 @@ function App() {
             gameStatus={gameStatus}
           />
         </Timer>
-        <div className="mt-6 flex flex-wrap justify-center gap-8">
-          <LostFigures figures={board.lostBlackFigures} title="black" />
-          <LostFigures figures={board.lostWhiteFigures} title="white" />
-        </div>
       </div>
     </div>
   );

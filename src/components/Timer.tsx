@@ -10,6 +10,7 @@ interface TimerProps {
   whitePlayer: Player;
   blackPlayer: Player;
   restart: () => void;
+  startGame: () => void;
   gameStatus: GameStatus;
 }
 
@@ -26,6 +27,7 @@ function Timer({
   whitePlayer,
   blackPlayer,
   restart,
+  startGame,
   gameStatus,
 }: TimerProps) {
   const [blackTime, setBlackTime] = useState(300);
@@ -70,11 +72,18 @@ function Timer({
     restart();
   }
 
+  function handleStart() {
+    setWhiteTime(300);
+    setBlackTime(300);
+    startGame();
+  }
+
   const bar = (opts: {
     player: Player;
     seconds: number;
     active: boolean;
     showRestart?: boolean;
+    isStart?: boolean;
   }) => (
     <div
       className={classNames(
@@ -108,10 +117,10 @@ function Timer({
         {opts.showRestart && (
           <button
             type="button"
-            onClick={handleRestart}
+            onClick={opts.isStart ? handleStart : handleRestart}
             className="rounded px-2 py-1 text-xs font-medium text-slate-600 underline-offset-2 hover:text-slate-900 hover:underline"
           >
-            Restart
+            {opts.isStart ? "Start" : "Restart"}
           </button>
         )}
       </div>
@@ -130,6 +139,7 @@ function Timer({
         seconds: blackTime,
         active: blackActive,
         showRestart: true,
+        isStart: gameStatus === GameStatus.NOT_STARTED,
       })}
       {children}
       {bar({

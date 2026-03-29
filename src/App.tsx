@@ -14,21 +14,28 @@ const PLAYER_BLACK = new Player(Colors.BLACK, "Black");
 function App() {
   const [board, setBoard] = useState(new Board());
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
-  const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.ACTIVE);
+  const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.NOT_STARTED);
 
-  useEffect(() => {
-    restart();
-    setCurrentPlayer(PLAYER_WHITE);
-  }, []);
-
-  function restart() {
+  function initBoard() {
     const newBoard = new Board();
     newBoard.initCells();
     newBoard.addFigures();
     setBoard(newBoard);
     setCurrentPlayer(PLAYER_WHITE);
+  }
+
+  function startGame() {
     setGameStatus(GameStatus.ACTIVE);
   }
+
+  function restart() {
+    initBoard();
+    setGameStatus(GameStatus.ACTIVE);
+  }
+
+  useEffect(() => {
+    initBoard();
+  }, []);
 
   function swapPlayer() {
     const nextPlayer = currentPlayer?.color === Colors.WHITE ? PLAYER_BLACK : PLAYER_WHITE;
@@ -64,6 +71,7 @@ function App() {
           whitePlayer={PLAYER_WHITE}
           blackPlayer={PLAYER_BLACK}
           restart={restart}
+          startGame={startGame}
           gameStatus={gameStatus}
         >
           <BoardComponent

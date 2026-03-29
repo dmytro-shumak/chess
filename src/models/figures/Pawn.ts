@@ -1,7 +1,6 @@
 import { Cell } from "./../Cell";
 import { Colors } from "./../Colors";
 import { Figure, FigureNames } from "./Figure";
-import { Queen } from "./Queen";
 import blackLogo from "../../assets/pawn-dark.svg?react";
 import whiteLogo from "../../assets/pawn-white.svg?react";
 export class Pawn extends Figure {
@@ -59,13 +58,5 @@ export class Pawn extends Figure {
   moveFigure(target: Cell): void {
     super.moveFigure(target);
     this.isFirstStep = false;
-  }
-
-  promoteIfNeeded(): Figure | null {
-    const promotionRank = this.color === Colors.WHITE ? 0 : 7;
-    if (this.cell.y === promotionRank) {
-      return new Queen(this.color, this.cell);
-    }
-    return null;
   }
 }

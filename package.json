@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.15",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },

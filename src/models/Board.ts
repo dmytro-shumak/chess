@@ -13,6 +13,8 @@ export class Board {
   lostBlackFigures: Figure[] = [];
   lostWhiteFigures: Figure[] = [];
   enPassantTarget: Cell | null = null;
+  // Pawn reached last rank; promotion UI must run before the next move.
+  pendingPromotion: { x: number; y: number } | null = null;
 
   public initCells() {
     for (let i = 0; i < 8; i++) {
@@ -70,7 +72,43 @@ export class Board {
     newBoard.cells = this.cells;
     newBoard.lostBlackFigures = this.lostBlackFigures;
     newBoard.lostWhiteFigures = this.lostWhiteFigures;
+    newBoard.enPassantTarget = this.enPassantTarget;
+    newBoard.pendingPromotion = this.pendingPromotion;
+    for (const row of this.cells) {
+      for (const cell of row) {
+        cell.board = newBoard;
+      }
+    }
     return newBoard;
+  }
+
+  public completePromotion(piece: FigureNames.QUEEN | FigureNames.ROOK | FigureNames.BISHOP | FigureNames.KNIGHT): void {
+    if (!this.pendingPromotion) return;
+    const cell = this.getCell(this.pendingPromotion.x, this.pendingPromotion.y);
+    const pawn = cell.figure;
+    if (!(pawn instanceof Pawn)) {
+      this.pendingPromotion = null;
+      return;
+    }
+    const color = pawn.color;
+    cell.figure = null;
+    this.pendingPromotion = null;
+    switch (piece) {
+      case FigureNames.QUEEN:
+        new Queen(color, cell);
+        break;
+      case FigureNames.ROOK:
+        new Rook(color, cell);
+        break;
+      case FigureNames.BISHOP:
+        new Bishop(color, cell);
+        break;
+      case FigureNames.KNIGHT:
+        new Knight(color, cell);
+        break;
+      default:
+        break;
+    }
   }
 
   public getCell(x: number, y: number) {

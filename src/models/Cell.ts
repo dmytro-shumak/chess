@@ -115,16 +115,21 @@ export class Cell {
       this.addLostFigure(target.figure);
     }
 
-    // Update figure's cell reference BEFORE checking promotion
     movingFigure.cell = target;
 
-    const nextFigure = movingFigure instanceof Pawn ? movingFigure.promoteIfNeeded() : null;
-    if (nextFigure) {
-      target.setFigure(nextFigure);
-    } else {
+    const isPawnPromotion =
+      movingFigure instanceof Pawn &&
+      (movingFigure.color === Colors.WHITE ? target.y === 0 : target.y === 7);
+
+    if (isPawnPromotion) {
       target.setFigure(movingFigure);
+      this.figure = null;
+      this.board.pendingPromotion = { x: target.x, y: target.y };
+      this.board.enPassantTarget = null;
+      return;
     }
 
+    target.setFigure(movingFigure);
     this.figure = null;
 
     if (isDoublePawnMove && target.figure instanceof Pawn) {

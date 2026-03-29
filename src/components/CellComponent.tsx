@@ -1,5 +1,6 @@
 import { Cell } from "../models/Cell";
 import { Colors } from "../models/Colors";
+import CellCoordinates from "./CellCoordinates";
 import { classNames } from "../utils/classNames";
 
 interface CellProps {
@@ -13,6 +14,11 @@ function CellComponent({ cell, selected, selectFigure }: CellProps) {
   const isCaptureHint = showMoveHint && Boolean(cell.figure);
   const Logo = cell.figure?.Logo;
 
+  const rankLabel = cell.x === 0 ? String(8 - cell.y) : null;
+  const fileLabel = cell.y === 7 ? String.fromCharCode(97 + cell.x) : null;
+  const labelTextClassName =
+    cell.color === Colors.BLACK ? "text-chess-light" : "text-chess-dark";
+
   return (
     <div
       className={classNames(
@@ -25,6 +31,7 @@ function CellComponent({ cell, selected, selectFigure }: CellProps) {
       )}
       onClick={() => selectFigure(cell)}
     >
+      <CellCoordinates rankLabel={rankLabel} fileLabel={fileLabel} labelTextClassName={labelTextClassName} />
       {showMoveHint && (
         <span
           className={classNames(

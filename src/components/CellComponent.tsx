@@ -11,6 +11,7 @@ interface CellProps {
 function CellComponent({ cell, selected, selectFigure }: CellProps) {
   const showMoveHint = cell.available && !selected;
   const isCaptureHint = showMoveHint && Boolean(cell.figure);
+  const Logo = cell.figure?.Logo;
 
   return (
     <div
@@ -33,13 +34,7 @@ function CellComponent({ cell, selected, selectFigure }: CellProps) {
           aria-hidden
         />
       )}
-      {cell.figure?.logo && (
-        <img
-          className="relative z-10 w-3/4 select-none"
-          src={cell.figure.logo}
-          alt={cell.figure.name}
-        />
-      )}
+      {Logo && <Logo />}
     </div>
   );
 }

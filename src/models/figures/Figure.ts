@@ -1,3 +1,4 @@
+import type { ComponentType, SVGProps } from "react";
 import { Colors } from "../Colors";
 import { Cell } from "../Cell";
 
@@ -11,13 +12,13 @@ export enum FigureNames {
   BISHOP = "Bishop",
 }
 export abstract class Figure {
-  logo: string | null;
+  Logo: ComponentType<SVGProps<SVGSVGElement>> | null;
   name: FigureNames;
   id: number;
   isFirstMove: boolean;
   constructor(public color: Colors, public cell: Cell) {
     this.cell.figure = this;
-    this.logo = null;
+    this.Logo = null;
     this.name = FigureNames.FIGURE;
     this.id = Math.random();
     this.isFirstMove = true;

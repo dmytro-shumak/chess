@@ -2,12 +2,12 @@ import { Cell } from "./../Cell";
 import { Colors } from "./../Colors";
 import { Figure, FigureNames } from "./Figure";
 import { Rook } from "./Rook";
-import blackLogo from "../../assets/king-dark.svg";
-import whiteLogo from "../../assets/king-white.svg";
+import blackLogo from "../../assets/king-dark.svg?react";
+import whiteLogo from "../../assets/king-white.svg?react";
 export class King extends Figure {
   constructor(color: Colors, cell: Cell) {
     super(color, cell);
-    this.logo = color === Colors.BLACK ? blackLogo : whiteLogo;
+    this.Logo = color === Colors.BLACK ? blackLogo : whiteLogo;
     this.name = FigureNames.KING;
   }
   canMove(target: Cell): boolean {

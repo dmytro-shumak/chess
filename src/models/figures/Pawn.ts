@@ -2,13 +2,13 @@ import { Cell } from "./../Cell";
 import { Colors } from "./../Colors";
 import { Figure, FigureNames } from "./Figure";
 import { Queen } from "./Queen";
-import blackLogo from "../../assets/pawn-dark.svg";
-import whiteLogo from "../../assets/pawn-white.svg";
+import blackLogo from "../../assets/pawn-dark.svg?react";
+import whiteLogo from "../../assets/pawn-white.svg?react";
 export class Pawn extends Figure {
   isFirstStep: boolean = true;
   constructor(color: Colors, cell: Cell) {
     super(color, cell);
-    this.logo = color === Colors.BLACK ? blackLogo : whiteLogo;
+    this.Logo = color === Colors.BLACK ? blackLogo : whiteLogo;
     this.name = FigureNames.PAWN;
   }
   canMove(target: Cell): boolean {

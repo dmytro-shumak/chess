@@ -1,3 +1,31 @@
 @import "tailwindcss";
 
 @config "../tailwind.config.js";
+
+@layer components {
+  .ui-side-panel {
+    @apply flex w-[300px] max-w-full shrink-0 flex-col gap-6 rounded-2xl border border-slate-200/90 bg-linear-to-b from-white via-slate-50/80 to-slate-100/90 p-6 shadow-surface-elevated ring-1 ring-slate-900/5;
+  }
+
+  .ui-game-button {
+    @apply relative w-full overflow-hidden rounded-xl px-4 py-5 text-center text-lg font-bold tracking-tight text-white transition sm:text-xl;
+  }
+
+  .ui-game-button--start {
+    @apply bg-linear-to-br from-emerald-500 via-emerald-600 to-emerald-800 shadow-glow-emerald focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-inset;
+  }
+
+  .ui-game-button--restart {
+    @apply bg-linear-to-br from-amber-500 via-amber-600 to-amber-900 shadow-glow-amber focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-inset;
+  }
+
+  .ui-game-button::after {
+    content: "";
+    @apply pointer-events-none absolute inset-0 z-0 rounded-[inherit] opacity-0 transition-opacity;
+    background: linear-gradient(to top, rgb(0 0 0 / 0.06), rgb(255 255 255 / 0.12));
+  }
+
+  .ui-game-button:hover::after {
+    opacity: 1;
+  }
+}

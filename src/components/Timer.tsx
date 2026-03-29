@@ -3,6 +3,7 @@ import { useState, useRef, useEffect, type ReactNode } from "react";
 import { Colors } from "../models/Colors";
 import { GameStatus } from "../models/GameStatus";
 import PlayerBar from "./PlayerBar";
+import GameSidePanel from "./GameSidePanel";
 
 interface TimerProps {
   children: ReactNode;
@@ -83,24 +84,23 @@ function Timer({
     gameStatus === GameStatus.ACTIVE && currentPlayer?.color === Colors.WHITE;
 
   return (
-    <div className="flex w-full max-w-[640px] flex-col items-center gap-1">
-      <PlayerBar
-        player={blackPlayer}
-        seconds={blackTime}
-        active={blackActive}
-        actionLabel={gameStatus === GameStatus.NOT_STARTED ? "Start" : "Restart"}
-        onAction={gameStatus === GameStatus.NOT_STARTED ? handleStart : handleRestart}
-        capturedFigures={capturedByBlack}
-      />
-      {children}
-      <PlayerBar
-        player={whitePlayer}
-        seconds={whiteTime}
-        active={whiteActive}
-        actionLabel=""
-        onAction={() => {}}
-        capturedFigures={capturedByWhite}
-      />
+    <div className="flex w-full max-w-7xl flex-col items-stretch gap-8 lg:flex-row lg:items-start lg:justify-center">
+      <div className="flex w-full max-w-[640px] flex-col items-center gap-1">
+        <PlayerBar
+          player={blackPlayer}
+          seconds={blackTime}
+          active={blackActive}
+          capturedFigures={capturedByBlack}
+        />
+        {children}
+        <PlayerBar
+          player={whitePlayer}
+          seconds={whiteTime}
+          active={whiteActive}
+          capturedFigures={capturedByWhite}
+        />
+      </div>
+      <GameSidePanel gameStatus={gameStatus} onStartGame={handleStart} onRestart={handleRestart} />
     </div>
   );
 }

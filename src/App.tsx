@@ -6,6 +6,7 @@ import { Colors } from "./models/Colors";
 import { Player } from "./models/Player";
 import Timer from "./components/Timer";
 import { GameStatus } from "./models/GameStatus";
+import { getGameOverMessage } from "./utils/getGameOverMessage";
 
 const PLAYER_WHITE = new Player(Colors.WHITE, "White");
 const PLAYER_BLACK = new Player(Colors.BLACK, "Black");
@@ -50,6 +51,8 @@ function App() {
 
   const isCheck = currentPlayer ? board.isKingInCheck(currentPlayer.color) : false;
 
+  const gameOverMessage = getGameOverMessage(gameStatus);
+
   return (
     <div className="box-border flex min-h-screen w-full flex-col items-center justify-center p-4">
       <div className="mx-auto flex w-full max-w-7xl flex-col items-center p-4">
@@ -58,12 +61,8 @@ function App() {
             Check! Current side under attack.
           </div>
         )}
-        {gameStatus !== GameStatus.ACTIVE && (
-          <div className="mb-3 text-center text-xl font-bold text-red-500">
-            {gameStatus === GameStatus.CHECKMATE_WHITE && "Checkmate! White side lost."}
-            {gameStatus === GameStatus.CHECKMATE_BLACK && "Checkmate! Black side lost."}
-            {gameStatus === GameStatus.STALEMATE && "Stalemate! Draw."}
-          </div>
+        {gameOverMessage && (
+          <div className="mb-3 text-center text-xl font-bold text-red-500">{gameOverMessage}</div>
         )}
         <Timer
           currentPlayer={currentPlayer}

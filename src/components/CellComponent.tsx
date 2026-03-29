@@ -34,7 +34,7 @@ function CellComponent({ cell, selected, selectFigure }: CellProps) {
           aria-hidden
         />
       )}
-      {Logo && <Logo width="75%" height="75%" />}
+      {Logo && <Logo width="100%" height="100%" />}
     </div>
   );
 }

@@ -1,5 +1,4 @@
 import { Colors } from "../Colors";
-import logo from "../../assets/black-bishop.png";
 import { Cell } from "../Cell";
 
 export enum FigureNames {
@@ -12,7 +11,7 @@ export enum FigureNames {
   BISHOP = "Bishop",
 }
 export abstract class Figure {
-  logo: typeof logo | null;
+  logo: string | null;
   name: FigureNames;
   id: number;
   isFirstMove: boolean;

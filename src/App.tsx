@@ -50,17 +50,16 @@ function App() {
   }
 
   const isCheck = currentPlayer ? board.isKingInCheck(currentPlayer.color) : false;
+  const checkKingCell =
+    gameStatus === GameStatus.ACTIVE && isCheck && currentPlayer
+      ? board.getKingCell(currentPlayer.color)
+      : null;
 
   const gameOverMessage = getGameOverMessage(gameStatus);
 
   return (
     <div className="box-border flex min-h-screen w-full flex-col items-center justify-center p-4">
       <div className="mx-auto flex w-full max-w-7xl flex-col items-center p-4">
-        {gameStatus === GameStatus.ACTIVE && isCheck && (
-          <div className="mb-3 text-center text-xl font-bold text-yellow-500">
-            Check! Current side under attack.
-          </div>
-        )}
         {gameOverMessage && (
           <div className="mb-3 text-center text-xl font-bold text-red-500">{gameOverMessage}</div>
         )}
@@ -80,6 +79,7 @@ function App() {
             currentPlayer={currentPlayer}
             swapPlayer={swapPlayer}
             gameStatus={gameStatus}
+            checkKingCell={checkKingCell}
           />
         </Timer>
       </div>

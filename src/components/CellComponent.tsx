@@ -6,10 +6,11 @@ import { classNames } from "../utils/classNames";
 interface CellProps {
   cell: Cell;
   selected: boolean;
+  kingInCheck: boolean;
   selectFigure: (cell: Cell) => void;
 }
 
-function CellComponent({ cell, selected, selectFigure }: CellProps) {
+function CellComponent({ cell, selected, kingInCheck, selectFigure }: CellProps) {
   const showMoveHint = cell.available && !selected;
   const isCaptureHint = showMoveHint && Boolean(cell.figure);
   const Logo = cell.figure?.Logo;
@@ -27,6 +28,7 @@ function CellComponent({ cell, selected, selectFigure }: CellProps) {
           "bg-chess-light": cell.color === Colors.WHITE && !selected,
           "bg-chess-dark": cell.color === Colors.BLACK && !selected,
           "bg-chess-selected": selected,
+          "z-2 ring-2 ring-inset ring-red-600/90": kingInCheck,
         },
       )}
       onClick={() => selectFigure(cell)}

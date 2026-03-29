@@ -224,6 +224,11 @@ export class Board {
     return false;
   }
 
+  public getKingCell(color: Colors): Cell | null {
+    const king = this.findKing(color);
+    return king?.cell ?? null;
+  }
+
   private findKing(color: Colors): Figure | null {
     for (let i = 0; i < this.cells.length; i++) {
       const row = this.cells[i];

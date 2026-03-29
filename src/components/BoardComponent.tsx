@@ -12,9 +12,10 @@ interface BoardProps {
   currentPlayer: Player | null;
   swapPlayer: () => void;
   gameStatus: GameStatus;
+  checkKingCell: Cell | null;
 }
 
-function BoardComponent({ board, setBoard, swapPlayer, currentPlayer, gameStatus }: BoardProps) {
+function BoardComponent({ board, setBoard, swapPlayer, currentPlayer, gameStatus, checkKingCell }: BoardProps) {
   const [selectedCell, setSelectedCell] = useState<Cell | null>(null);
   function selectFigure(cell: Cell) {
     if (gameStatus !== GameStatus.ACTIVE) return;
@@ -88,6 +89,9 @@ function BoardComponent({ board, setBoard, swapPlayer, currentPlayer, gameStatus
                 cell={cell}
                 key={cell.id}
                 selected={cell.x === selectedCell?.x && cell.y === selectedCell?.y}
+                kingInCheck={
+                  checkKingCell !== null && cell.x === checkKingCell.x && cell.y === checkKingCell.y
+                }
                 selectFigure={selectFigure}
               />
             ))}

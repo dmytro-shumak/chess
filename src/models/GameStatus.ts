@@ -3,4 +3,5 @@ export enum GameStatus {
   CHECKMATE_WHITE = 'checkmate_white',
   CHECKMATE_BLACK = 'checkmate_black',
   STALEMATE = 'stalemate',
+  THREEFOLD_REPETITION = 'threefold_repetition',
 }

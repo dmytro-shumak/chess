@@ -27,6 +27,12 @@ export function getGameOverModalCopy(status: GameStatus): GameOverModalCopy | nu
         detailLine:
           "The side to move has no legal moves, and the king is not in check.",
       };
+    case GameStatus.THREEFOLD_REPETITION:
+      return {
+        winnerLabel: null,
+        resultLine: "Draw — threefold repetition.",
+        detailLine: "The same position occurred three times.",
+      };
     default:
       return null;
   }

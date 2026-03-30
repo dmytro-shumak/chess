@@ -2,12 +2,13 @@ import "./App.css";
 import BoardComponent from "./components/BoardComponent";
 import GameOverModal from "./components/GameOverModal";
 import { Board } from "./models/Board";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Colors } from "./models/Colors";
 import { Player } from "./models/Player";
 import Timer from "./components/Timer";
 import { GameStatus } from "./models/GameStatus";
 import { getGameOverModalCopy } from "./utils/getGameOverModalCopy";
+import { buildRepetitionKey } from "./utils/positionRepetition";
 
 const PLAYER_WHITE = new Player(Colors.WHITE, "White");
 const PLAYER_BLACK = new Player(Colors.BLACK, "Black");
@@ -19,6 +20,12 @@ function App() {
   // the timer is not started until the first move is made
   const [clocksStarted, setClocksStarted] = useState(false);
   const [gameOverDismissed, setGameOverDismissed] = useState(false);
+  const repetitionCounts = useRef(new Map<string, number>());
+
+  function seedStartingPosition(board: Board) {
+    repetitionCounts.current.clear();
+    repetitionCounts.current.set(buildRepetitionKey(board, Colors.WHITE), 1);
+  }
 
   function initBoard() {
     const newBoard = new Board();
@@ -26,6 +33,7 @@ function App() {
     newBoard.addFigures();
     setBoard(newBoard);
     setCurrentPlayer(PLAYER_WHITE);
+    seedStartingPosition(newBoard);
   }
 
   function restart() {
@@ -48,13 +56,23 @@ function App() {
   function swapPlayer() {
     setClocksStarted(true);
     const nextPlayer = currentPlayer?.color === Colors.WHITE ? PLAYER_BLACK : PLAYER_WHITE;
+
+    const key = buildRepetitionKey(board, nextPlayer.color);
+    const nextCount = (repetitionCounts.current.get(key) ?? 0) + 1;
+    repetitionCounts.current.set(key, nextCount);
+
     setCurrentPlayer(nextPlayer);
 
-    // Check for checkmate or stalemate
     if (board.isCheckmate(nextPlayer.color)) {
       setGameStatus(nextPlayer.color === Colors.WHITE ? GameStatus.CHECKMATE_WHITE : GameStatus.CHECKMATE_BLACK);
-    } else if (board.isStalemate(nextPlayer.color)) {
+      return;
+    }
+    if (board.isStalemate(nextPlayer.color)) {
       setGameStatus(GameStatus.STALEMATE);
+      return;
+    }
+    if (nextCount >= 3) {
+      setGameStatus(GameStatus.THREEFOLD_REPETITION);
     }
   }
 

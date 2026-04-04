@@ -5,4 +5,6 @@ export enum GameStatus {
   STALEMATE = 'stalemate',
   THREEFOLD_REPETITION = 'threefold_repetition',
   FIFTY_MOVE_DRAW = 'fifty_move_draw',
+  TIMEOUT_WHITE = 'timeout_white',
+  TIMEOUT_BLACK = 'timeout_black',
 }

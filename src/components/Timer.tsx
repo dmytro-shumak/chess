@@ -15,6 +15,7 @@ interface TimerProps {
   gameStatus: GameStatus;
   capturedByWhite: import("../models/figures/Figure").Figure[];
   capturedByBlack: import("../models/figures/Figure").Figure[];
+  onOutOfTime: (loser: Colors) => void;
 }
 
 const INITIAL_TIME = 300; // 5 minutes in seconds
@@ -29,10 +30,24 @@ function Timer({
   gameStatus,
   capturedByWhite,
   capturedByBlack,
+  onOutOfTime,
 }: TimerProps) {
   const [blackTime, setBlackTime] = useState(INITIAL_TIME);
   const [whiteTime, setWhiteTime] = useState(INITIAL_TIME);
   const timer = useRef<null | ReturnType<typeof setInterval>>(null);
+
+  useEffect(() => {
+    if (gameStatus !== GameStatus.ACTIVE || !clocksStarted) return;
+
+    if (currentPlayer?.color === Colors.WHITE && whiteTime <= 0) {
+      onOutOfTime(Colors.WHITE);
+      return
+    } 
+    
+     if (currentPlayer?.color === Colors.BLACK && blackTime <= 0) {
+      onOutOfTime(Colors.BLACK);
+    }
+  }, [whiteTime, blackTime, gameStatus, clocksStarted, currentPlayer, onOutOfTime]);
 
   useEffect(() => {
     if (gameStatus !== GameStatus.ACTIVE || !clocksStarted) {
@@ -59,11 +74,11 @@ function Timer({
   }, [currentPlayer, gameStatus, clocksStarted]);
 
   function decrementBlackTimer() {
-    setBlackTime((prev) => prev - 1);
+    setBlackTime((prev) => (prev <= 0 ? 0 : prev - 1));
   }
 
   function decrementWhiteTimer() {
-    setWhiteTime((prev) => prev - 1);
+    setWhiteTime((prev) => (prev <= 0 ? 0 : prev - 1));
   }
 
   function handleRestart() {

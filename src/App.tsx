@@ -2,7 +2,7 @@ import "./App.css";
 import BoardComponent from "./components/BoardComponent";
 import GameOverModal from "./components/GameOverModal";
 import { Board, FIFTY_MOVE_HALF_MOVE_LIMIT } from "./models/Board";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Colors } from "./models/Colors";
 import { Player } from "./models/Player";
 import Timer from "./components/Timer";
@@ -52,6 +52,10 @@ function App() {
       setGameOverDismissed(false);
     }
   }, [gameStatus]);
+
+  const handleOutOfTime = useCallback((loser: Colors) => {
+    setGameStatus(loser === Colors.WHITE ? GameStatus.TIMEOUT_WHITE : GameStatus.TIMEOUT_BLACK);
+  }, []);
 
   function swapPlayer() {
     setClocksStarted(true);
@@ -108,6 +112,7 @@ function App() {
           restart={restart}
           clocksStarted={clocksStarted}
           gameStatus={gameStatus}
+          onOutOfTime={handleOutOfTime}
           capturedByWhite={board.lostBlackFigures}
           capturedByBlack={board.lostWhiteFigures}
         >

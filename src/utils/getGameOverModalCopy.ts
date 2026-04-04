@@ -39,6 +39,18 @@ export function getGameOverModalCopy(status: GameStatus): GameOverModalCopy | nu
         resultLine: "Draw — 50-move rule.",
         detailLine: "100 half-moves without a pawn move or capture.",
       };
+    case GameStatus.TIMEOUT_WHITE:
+      return {
+        winnerLabel: "Black",
+        resultLine: "Black wins on time.",
+        detailLine: "White’s clock reached zero.",
+      };
+    case GameStatus.TIMEOUT_BLACK:
+      return {
+        winnerLabel: "White",
+        resultLine: "White wins on time.",
+        detailLine: "Black’s clock reached zero.",
+      };
     default:
       return null;
   }

@@ -12,8 +12,8 @@ function GameOverModal({ open, onOpenChange, copy, onRematch }: GameOverModalPro
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange} modal>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-200 bg-black/50" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-201 w-[min(100vw-2rem,380px)] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-slate-200 bg-white p-6 shadow-xl outline-none">
+        <Dialog.Overlay className="game-over-modal-overlay fixed inset-0 z-200 bg-black/50" />
+        <Dialog.Content className="game-over-modal-content fixed left-1/2 top-1/2 z-201 w-[min(100vw-2rem,380px)] rounded-2xl border border-slate-200 bg-white p-6 shadow-xl outline-none">
           <div className="mb-4 flex items-start justify-between gap-3">
             <Dialog.Title className="text-xl font-bold text-slate-900">Game over</Dialog.Title>
             <Dialog.Close

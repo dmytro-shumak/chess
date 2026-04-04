@@ -14,6 +14,8 @@ import { isInsufficientMaterial } from "./utils/insufficientMaterial";
 const PLAYER_WHITE = new Player(Colors.WHITE, "White");
 const PLAYER_BLACK = new Player(Colors.BLACK, "Black");
 
+const GAME_OVER_MODAL_DELAY_MS = 500;
+
 function App() {
   const [board, setBoard] = useState(new Board());
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
@@ -23,7 +25,9 @@ function App() {
   // the timer is not started until the first move is made
   const [clocksStarted, setClocksStarted] = useState(false);
   const [gameOverDismissed, setGameOverDismissed] = useState(false);
+  const [gameOverModalReady, setGameOverModalReady] = useState(false);
   const repetitionCounts = useRef(new Map<string, number>());
+  const gameOverModalDelayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function seedStartingPosition(board: Board) {
     repetitionCounts.current.clear();
@@ -60,6 +64,31 @@ function App() {
     if (gameStatus === GameStatus.ACTIVE) {
       setGameOverDismissed(false);
     }
+  }, [gameStatus]);
+
+  useEffect(() => {
+    if (gameOverModalDelayRef.current) {
+      clearTimeout(gameOverModalDelayRef.current);
+      gameOverModalDelayRef.current = null;
+    }
+
+    if (gameStatus === GameStatus.ACTIVE) {
+      setGameOverModalReady(false);
+      return;
+    }
+
+    setGameOverModalReady(false);
+    gameOverModalDelayRef.current = setTimeout(() => {
+      gameOverModalDelayRef.current = null;
+      setGameOverModalReady(true);
+    }, GAME_OVER_MODAL_DELAY_MS);
+
+    return () => {
+      if (gameOverModalDelayRef.current) {
+        clearTimeout(gameOverModalDelayRef.current);
+        gameOverModalDelayRef.current = null;
+      }
+    };
   }, [gameStatus]);
 
   const handleOutOfTime = useCallback((loser: Colors) => {
@@ -110,7 +139,7 @@ function App() {
       <div className="mx-auto flex w-full max-w-7xl flex-col items-center p-4">
         {gameOverCopy && (
           <GameOverModal
-            open={!gameOverDismissed}
+            open={gameOverModalReady && !gameOverDismissed}
             onOpenChange={(open) => {
               if (!open) setGameOverDismissed(true);
             }}

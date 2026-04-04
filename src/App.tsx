@@ -9,6 +9,7 @@ import Timer from "./components/Timer";
 import { GameStatus } from "./models/GameStatus";
 import { getGameOverModalCopy } from "./utils/getGameOverModalCopy";
 import { buildRepetitionKey } from "./utils/positionRepetition";
+import { isInsufficientMaterial } from "./utils/insufficientMaterial";
 
 const PLAYER_WHITE = new Player(Colors.WHITE, "White");
 const PLAYER_BLACK = new Player(Colors.BLACK, "Black");
@@ -73,6 +74,10 @@ function App() {
     }
     if (board.isStalemate(nextPlayer.color)) {
       setGameStatus(GameStatus.STALEMATE);
+      return;
+    }
+    if (isInsufficientMaterial(board)) {
+      setGameStatus(GameStatus.INSUFFICIENT_MATERIAL);
       return;
     }
     if (board.halfMoveClock >= FIFTY_MOVE_HALF_MOVE_LIMIT) {

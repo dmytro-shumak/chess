@@ -51,6 +51,12 @@ export function getGameOverModalCopy(status: GameStatus): GameOverModalCopy | nu
         resultLine: "White wins on time.",
         detailLine: "Black’s clock reached zero.",
       };
+    case GameStatus.INSUFFICIENT_MATERIAL:
+      return {
+        winnerLabel: null,
+        resultLine: "Draw — insufficient material.",
+        detailLine: "Checkmate is not possible for either side.",
+      };
     default:
       return null;
   }

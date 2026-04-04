@@ -7,4 +7,5 @@ export enum GameStatus {
   FIFTY_MOVE_DRAW = 'fifty_move_draw',
   TIMEOUT_WHITE = 'timeout_white',
   TIMEOUT_BLACK = 'timeout_black',
+  INSUFFICIENT_MATERIAL = 'insufficient_material',
 }

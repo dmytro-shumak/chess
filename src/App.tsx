@@ -19,6 +19,7 @@ function App() {
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
   const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.ACTIVE);
   const [movePlies, setMovePlies] = useState<string[]>([]);
+  const [boardResetKey, setBoardResetKey] = useState(0);
   // the timer is not started until the first move is made
   const [clocksStarted, setClocksStarted] = useState(false);
   const [gameOverDismissed, setGameOverDismissed] = useState(false);
@@ -45,6 +46,7 @@ function App() {
 
   function restart() {
     initBoard();
+    setBoardResetKey((k) => k + 1);
     setGameStatus(GameStatus.ACTIVE);
     setClocksStarted(false);
     setGameOverDismissed(false);
@@ -129,6 +131,7 @@ function App() {
           movePlies={movePlies}
         >
           <BoardComponent
+            key={boardResetKey}
             board={board}
             setBoard={setBoard}
             currentPlayer={currentPlayer}

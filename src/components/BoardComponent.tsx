@@ -13,6 +13,18 @@ import {
   promotionPieceLetter,
 } from "../utils/san";
 
+type LastMove = { from: { x: number; y: number }; to: { x: number; y: number } };
+
+function lastMoveRoleForCell(cell: Cell, lastMove: LastMove | null): "from" | "to" | null {
+  if (!lastMove) return null;
+
+  if (cell.x === lastMove.from.x && cell.y === lastMove.from.y) return "from";
+
+  if (cell.x === lastMove.to.x && cell.y === lastMove.to.y) return "to";
+
+  return null;
+}
+
 interface BoardProps {
   board: Board;
   setBoard: (board: Board) => void;
@@ -33,6 +45,7 @@ function BoardComponent({
   onMovePlayed,
 }: BoardProps) {
   const [selectedCell, setSelectedCell] = useState<Cell | null>(null);
+  const [lastMove, setLastMove] = useState<LastMove | null>(null);
   const promotionFromRef = useRef<{ x: number; y: number } | null>(null);
 
   function selectFigure(cell: Cell) {
@@ -56,6 +69,7 @@ function BoardComponent({
         return;
       }
       const san = baseSan + appendCheckSuffix(board, moverColor);
+      setLastMove({ from: { x: from.x, y: from.y }, to: { x: cell.x, y: cell.y } });
       onMovePlayed?.(san);
       swapPlayer();
       updateBoard();
@@ -97,6 +111,7 @@ function BoardComponent({
     const san = base + appendCheckSuffix(board, moverColor);
     promotionFromRef.current = null;
     board.hightlightCells(null, currentPlayer?.color ?? null);
+    setLastMove({ from: { x: fromCoords.x, y: fromCoords.y }, to: { x: to.x, y: to.y } });
     onMovePlayed?.(san);
     swapPlayer();
     updateBoard();
@@ -125,6 +140,7 @@ function BoardComponent({
                 kingInCheck={
                   checkKingCell !== null && cell.x === checkKingCell.x && cell.y === checkKingCell.y
                 }
+                lastMoveRole={lastMoveRoleForCell(cell, lastMove)}
                 selectFigure={selectFigure}
               />
             ))}

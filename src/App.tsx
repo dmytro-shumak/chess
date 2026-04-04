@@ -1,7 +1,7 @@
 import "./App.css";
 import BoardComponent from "./components/BoardComponent";
 import GameOverModal from "./components/GameOverModal";
-import { Board } from "./models/Board";
+import { Board, FIFTY_MOVE_HALF_MOVE_LIMIT } from "./models/Board";
 import { useState, useEffect, useRef } from "react";
 import { Colors } from "./models/Colors";
 import { Player } from "./models/Player";
@@ -69,6 +69,10 @@ function App() {
     }
     if (board.isStalemate(nextPlayer.color)) {
       setGameStatus(GameStatus.STALEMATE);
+      return;
+    }
+    if (board.halfMoveClock >= FIFTY_MOVE_HALF_MOVE_LIMIT) {
+      setGameStatus(GameStatus.FIFTY_MOVE_DRAW);
       return;
     }
     if (nextCount >= 3) {

@@ -44,7 +44,6 @@ export function buildRepetitionKey(board: Board, sideToMove: Colors): string {
     }
     rows.push(row);
   }
-  console.log('rows', rows)
   const ep = board.enPassantTarget;
   // Coords of the ep capture square; "-" if no en passant this turn.
   const epPart = ep ? `${ep.x},${ep.y}` : "-";

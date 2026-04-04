@@ -33,6 +33,12 @@ export function getGameOverModalCopy(status: GameStatus): GameOverModalCopy | nu
         resultLine: "Draw — threefold repetition.",
         detailLine: "The same position occurred three times.",
       };
+    case GameStatus.FIFTY_MOVE_DRAW:
+      return {
+        winnerLabel: null,
+        resultLine: "Draw — 50-move rule.",
+        detailLine: "100 half-moves without a pawn move or capture.",
+      };
     default:
       return null;
   }

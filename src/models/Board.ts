@@ -8,6 +8,9 @@ import { Pawn } from "./figures/Pawn";
 import { Queen } from "./figures/Queen";
 import { Figure, FigureNames } from "./figures/Figure";
 
+// FIDE: 100 half-moves without pawn move or capture = 50 full moves → draw.
+export const FIFTY_MOVE_HALF_MOVE_LIMIT = 100;
+
 export class Board {
   cells: Cell[][] = [];
   lostBlackFigures: Figure[] = [];
@@ -15,6 +18,16 @@ export class Board {
   enPassantTarget: Cell | null = null;
   // Pawn reached last rank; promotion UI must run before the next move.
   pendingPromotion: { x: number; y: number } | null = null;
+  // Half-moves since last pawn move or capture; used for 50-move rule.
+  halfMoveClock = 0;
+
+  recordHalfMoveAfterPly(pawnMove: boolean, capture: boolean): void {
+    if (pawnMove || capture) {
+      this.halfMoveClock = 0;
+    } else {
+      this.halfMoveClock += 1;
+    }
+  }
 
   public initCells() {
     for (let i = 0; i < 8; i++) {
@@ -74,6 +87,7 @@ export class Board {
     newBoard.lostWhiteFigures = this.lostWhiteFigures;
     newBoard.enPassantTarget = this.enPassantTarget;
     newBoard.pendingPromotion = this.pendingPromotion;
+    newBoard.halfMoveClock = this.halfMoveClock;
     for (const row of this.cells) {
       for (const cell of row) {
         cell.board = newBoard;

@@ -95,6 +95,8 @@ export class Cell {
       movingFigure instanceof Pawn &&
       this.board.enPassantTarget === target &&
       !target.figure;
+    const isCapture = target.figure !== null || isEnPassant;
+    const movingIsPawn = movingFigure instanceof Pawn;
 
     if (isEnPassant) {
       const captureY = movingFigure.color === Colors.WHITE ? target.y + 1 : target.y - 1;
@@ -126,6 +128,7 @@ export class Cell {
       this.figure = null;
       this.board.pendingPromotion = { x: target.x, y: target.y };
       this.board.enPassantTarget = null;
+      this.board.recordHalfMoveAfterPly(true, false);
       return;
     }
 
@@ -138,5 +141,7 @@ export class Cell {
     } else {
       this.board.enPassantTarget = null;
     }
+
+    this.board.recordHalfMoveAfterPly(movingIsPawn, isCapture);
   }
 }

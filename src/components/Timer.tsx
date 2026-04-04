@@ -16,6 +16,7 @@ interface TimerProps {
   capturedByWhite: import("../models/figures/Figure").Figure[];
   capturedByBlack: import("../models/figures/Figure").Figure[];
   onOutOfTime: (loser: Colors) => void;
+  movePlies: string[];
 }
 
 const INITIAL_TIME = 300; // 5 minutes in seconds
@@ -31,6 +32,7 @@ function Timer({
   capturedByWhite,
   capturedByBlack,
   onOutOfTime,
+  movePlies,
 }: TimerProps) {
   const [blackTime, setBlackTime] = useState(INITIAL_TIME);
   const [whiteTime, setWhiteTime] = useState(INITIAL_TIME);
@@ -43,7 +45,7 @@ function Timer({
       onOutOfTime(Colors.WHITE);
       return
     } 
-    
+
      if (currentPlayer?.color === Colors.BLACK && blackTime <= 0) {
       onOutOfTime(Colors.BLACK);
     }
@@ -112,6 +114,7 @@ function Timer({
       <GameSidePanel
         restartDisabled={!clocksStarted && gameStatus === GameStatus.ACTIVE}
         onRestart={handleRestart}
+        movePlies={movePlies}
       />
     </div>
   );

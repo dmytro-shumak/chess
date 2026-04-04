@@ -18,6 +18,7 @@ function App() {
   const [board, setBoard] = useState(new Board());
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
   const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.ACTIVE);
+  const [movePlies, setMovePlies] = useState<string[]>([]);
   // the timer is not started until the first move is made
   const [clocksStarted, setClocksStarted] = useState(false);
   const [gameOverDismissed, setGameOverDismissed] = useState(false);
@@ -34,8 +35,13 @@ function App() {
     newBoard.addFigures();
     setBoard(newBoard);
     setCurrentPlayer(PLAYER_WHITE);
+    setMovePlies([]);
     seedStartingPosition(newBoard);
   }
+
+  const handleMovePlayed = useCallback((san: string) => {
+    setMovePlies((prev) => [...prev, san]);
+  }, []);
 
   function restart() {
     initBoard();
@@ -120,6 +126,7 @@ function App() {
           onOutOfTime={handleOutOfTime}
           capturedByWhite={board.lostBlackFigures}
           capturedByBlack={board.lostWhiteFigures}
+          movePlies={movePlies}
         >
           <BoardComponent
             board={board}
@@ -128,6 +135,7 @@ function App() {
             swapPlayer={swapPlayer}
             gameStatus={gameStatus}
             checkKingCell={checkKingCell}
+            onMovePlayed={handleMovePlayed}
           />
         </Timer>
       </div>

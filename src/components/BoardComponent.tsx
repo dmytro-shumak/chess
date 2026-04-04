@@ -1,11 +1,18 @@
 import { Board } from "../models/Board";
-import { Fragment, useState, useLayoutEffect } from "react";
+import { Fragment, useState, useLayoutEffect, useRef } from "react";
 import CellComponent from "./CellComponent";
 import PromotionModal, { type PromotionChoice } from "./PromotionModal";
 import { Cell } from "../models/Cell";
 import { Player } from "../models/Player";
 import { GameStatus } from "../models/GameStatus";
 import { Colors } from "../models/Colors";
+import {
+  appendCheckSuffix,
+  buildPromotionSanBase,
+  buildSanBase,
+  promotionPieceLetter,
+} from "../utils/san";
+
 interface BoardProps {
   board: Board;
   setBoard: (board: Board) => void;
@@ -13,10 +20,21 @@ interface BoardProps {
   swapPlayer: () => void;
   gameStatus: GameStatus;
   checkKingCell: Cell | null;
+  onMovePlayed?: (san: string) => void;
 }
 
-function BoardComponent({ board, setBoard, swapPlayer, currentPlayer, gameStatus, checkKingCell }: BoardProps) {
+function BoardComponent({
+  board,
+  setBoard,
+  swapPlayer,
+  currentPlayer,
+  gameStatus,
+  checkKingCell,
+  onMovePlayed,
+}: BoardProps) {
   const [selectedCell, setSelectedCell] = useState<Cell | null>(null);
+  const promotionFromRef = useRef<{ x: number; y: number } | null>(null);
+
   function selectFigure(cell: Cell) {
     if (gameStatus !== GameStatus.ACTIVE) return;
     if (board.pendingPromotion) return;
@@ -26,13 +44,19 @@ function BoardComponent({ board, setBoard, swapPlayer, currentPlayer, gameStatus
       selectedCell !== cell &&
       board.canMoveConsideringCheck(selectedCell, cell, currentPlayer?.color ?? null)
     ) {
-      selectedCell.moveFigure(cell);
+      const from = selectedCell;
+      const moverColor = currentPlayer!.color;
+      const baseSan = buildSanBase(board, from, cell, moverColor);
+      from.moveFigure(cell);
       setSelectedCell(null);
       if (board.pendingPromotion) {
+        promotionFromRef.current = { x: from.x, y: from.y };
         board.hightlightCells(null, currentPlayer?.color ?? null);
         updateBoard();
         return;
       }
+      const san = baseSan + appendCheckSuffix(board, moverColor);
+      onMovePlayed?.(san);
       swapPlayer();
       updateBoard();
     } else if (selectedCell === cell) {
@@ -63,10 +87,19 @@ function BoardComponent({ board, setBoard, swapPlayer, currentPlayer, gameStatus
   }
 
   function handlePromotionSelect(piece: PromotionChoice) {
+    const fromCoords = promotionFromRef.current;
+    const to = board.pendingPromotion;
+    if (!fromCoords || !to) return;
+    const moverColor =
+      board.getCell(to.x, to.y).figure?.color ?? currentPlayer?.color ?? Colors.WHITE;
+    const base = buildPromotionSanBase(fromCoords, to) + "=" + promotionPieceLetter(piece);
     board.completePromotion(piece);
+    const san = base + appendCheckSuffix(board, moverColor);
+    promotionFromRef.current = null;
     board.hightlightCells(null, currentPlayer?.color ?? null);
-    updateBoard();
+    onMovePlayed?.(san);
     swapPlayer();
+    updateBoard();
   }
 
   const promotionColor =

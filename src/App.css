@@ -25,6 +25,22 @@
     opacity: 1;
   }
 
+  .ui-engine-select {
+    @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm transition;
+  }
+
+  .ui-engine-select:disabled {
+    @apply cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400 shadow-none;
+  }
+
+  .ui-engine-select:focus-visible {
+    @apply outline-none ring-2 ring-slate-400 ring-offset-2;
+  }
+
+  .ui-engine-select:not(:disabled):hover {
+    @apply border-slate-400 bg-slate-50;
+  }
+
   .game-over-modal-overlay[data-state="open"] {
     animation: game-over-overlay-in 1.4s cubic-bezier(0.22, 0.61, 0.36, 1) both;
   }

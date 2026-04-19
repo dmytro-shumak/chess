@@ -14,13 +14,12 @@ export default function HomePage() {
           >
             Local game
           </Link>
-          <button
-            type="button"
-            disabled
-            className="ui-game-button pointer-events-none cursor-not-allowed bg-linear-to-br from-slate-400 via-slate-500 to-slate-600 opacity-60 shadow-none"
+          <Link
+            to={ROUTES.vsComputer}
+            className="ui-game-button block bg-linear-to-br from-emerald-700 via-emerald-800 to-emerald-950 text-center shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2"
           >
             Play vs computer
-          </button>
+          </Link>
           <button
             type="button"
             disabled

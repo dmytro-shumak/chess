@@ -2,6 +2,7 @@ import type { Board } from "../models/Board";
 import type { Cell } from "../models/Cell";
 import { Colors } from "../models/Colors";
 import { FigureNames } from "../models/figures/Figure";
+import { applyUciMove, parseUciToBoardSquares } from "./fen";
 
 export function fileRank(x: number, y: number): string {
   return `${String.fromCharCode(97 + x)}${8 - y}`;
@@ -108,4 +109,37 @@ export function promotionPieceLetter(
   piece: FigureNames.QUEEN | FigureNames.ROOK | FigureNames.BISHOP | FigureNames.KNIGHT
 ): string {
   return pieceLetter(piece);
+}
+
+const PROMO_FROM_UCI: Record<
+  string,
+  FigureNames.QUEEN | FigureNames.ROOK | FigureNames.BISHOP | FigureNames.KNIGHT
+> = {
+  q: FigureNames.QUEEN,
+  r: FigureNames.ROOK,
+  b: FigureNames.BISHOP,
+  n: FigureNames.KNIGHT,
+};
+
+/**
+ * Builds SAN for a UCI move, applies it to `board`, and returns the full SAN (with +/#) or null if illegal.
+ */
+export function sanForAppliedUci(board: Board, uci: string, moverColor: Colors): string | null {
+  const trimmed = uci.trim().toLowerCase();
+  const squares = parseUciToBoardSquares(trimmed);
+  if (!squares) return null;
+  const fromCell = board.getCell(squares.from.x, squares.from.y);
+  const toCell = board.getCell(squares.to.x, squares.to.y);
+  const promoChar = trimmed.length >= 5 ? trimmed[4] : null;
+
+  if (promoChar && PROMO_FROM_UCI[promoChar]) {
+    const piece = PROMO_FROM_UCI[promoChar];
+    const base = buildPromotionSanBase(squares.from, squares.to) + "=" + promotionPieceLetter(piece);
+    if (!applyUciMove(board, trimmed, moverColor)) return null;
+    return base + appendCheckSuffix(board, moverColor);
+  }
+
+  const baseSan = buildSanBase(board, fromCell, toCell, moverColor);
+  if (!applyUciMove(board, trimmed, moverColor)) return null;
+  return baseSan + appendCheckSuffix(board, moverColor);
 }

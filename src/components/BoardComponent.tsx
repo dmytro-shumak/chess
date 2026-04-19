@@ -6,6 +6,7 @@ import { Cell } from "../models/Cell";
 import { Player } from "../models/Player";
 import { GameStatus } from "../models/GameStatus";
 import { Colors } from "../models/Colors";
+import type { BoardMoveSquares } from "../utils/fen";
 import {
   appendCheckSuffix,
   buildPromotionSanBase,
@@ -13,7 +14,7 @@ import {
   promotionPieceLetter,
 } from "../utils/san";
 
-type LastMove = { from: { x: number; y: number }; to: { x: number; y: number } };
+type LastMove = BoardMoveSquares;
 
 function lastMoveRoleForCell(cell: Cell, lastMove: LastMove | null): "from" | "to" | null {
   if (!lastMove) return null;
@@ -33,6 +34,9 @@ interface BoardProps {
   gameStatus: GameStatus;
   checkKingCell: Cell | null;
   onMovePlayed?: (san: string) => void;
+  inputLocked?: boolean;
+  lastMoveHighlight?: LastMove | null;
+  onLastMoveHighlight?: (move: LastMove | null) => void;
 }
 
 function BoardComponent({
@@ -43,12 +47,27 @@ function BoardComponent({
   gameStatus,
   checkKingCell,
   onMovePlayed,
+  inputLocked = false,
+  lastMoveHighlight,
+  onLastMoveHighlight,
 }: BoardProps) {
   const [selectedCell, setSelectedCell] = useState<Cell | null>(null);
-  const [lastMove, setLastMove] = useState<LastMove | null>(null);
+  const [internalLastMove, setInternalLastMove] = useState<LastMove | null>(null);
   const promotionFromRef = useRef<{ x: number; y: number } | null>(null);
 
+  const controlledHighlight = onLastMoveHighlight !== undefined;
+  const displayLastMove = controlledHighlight ? (lastMoveHighlight ?? null) : internalLastMove;
+
+  function setLastMoveDisplay(move: LastMove | null) {
+    if (controlledHighlight) {
+      onLastMoveHighlight?.(move);
+    } else {
+      setInternalLastMove(move);
+    }
+  }
+
   function selectFigure(cell: Cell) {
+    if (inputLocked) return;
     if (gameStatus !== GameStatus.ACTIVE) return;
     if (board.pendingPromotion) return;
 
@@ -69,7 +88,7 @@ function BoardComponent({
         return;
       }
       const san = baseSan + appendCheckSuffix(board, moverColor);
-      setLastMove({ from: { x: from.x, y: from.y }, to: { x: cell.x, y: cell.y } });
+      setLastMoveDisplay({ from: { x: from.x, y: from.y }, to: { x: cell.x, y: cell.y } });
       onMovePlayed?.(san);
       swapPlayer();
       updateBoard();
@@ -101,6 +120,7 @@ function BoardComponent({
   }
 
   function handlePromotionSelect(piece: PromotionChoice) {
+    if (inputLocked) return;
     const fromCoords = promotionFromRef.current;
     const to = board.pendingPromotion;
     if (!fromCoords || !to) return;
@@ -111,7 +131,7 @@ function BoardComponent({
     const san = base + appendCheckSuffix(board, moverColor);
     promotionFromRef.current = null;
     board.hightlightCells(null, currentPlayer?.color ?? null);
-    setLastMove({ from: { x: fromCoords.x, y: fromCoords.y }, to: { x: to.x, y: to.y } });
+    setLastMoveDisplay({ from: { x: fromCoords.x, y: fromCoords.y }, to: { x: to.x, y: to.y } });
     onMovePlayed?.(san);
     swapPlayer();
     updateBoard();
@@ -140,7 +160,7 @@ function BoardComponent({
                 kingInCheck={
                   checkKingCell !== null && cell.x === checkKingCell.x && cell.y === checkKingCell.y
                 }
-                lastMoveRole={lastMoveRoleForCell(cell, lastMove)}
+                lastMoveRole={lastMoveRoleForCell(cell, displayLastMove)}
                 selectFigure={selectFigure}
               />
             ))}

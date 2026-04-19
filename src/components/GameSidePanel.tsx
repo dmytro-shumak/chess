@@ -1,13 +1,14 @@
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { classNames } from "../utils/classNames";
 
 interface GameSidePanelProps {
   restartDisabled: boolean;
   onRestart: () => void;
   movePlies: string[];
+  footer?: ReactNode;
 }
 
-function GameSidePanel({ restartDisabled, onRestart, movePlies }: GameSidePanelProps) {
+function GameSidePanel({ restartDisabled, onRestart, movePlies, footer }: GameSidePanelProps) {
   const historyScrollRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
@@ -87,6 +88,11 @@ function GameSidePanel({ restartDisabled, onRestart, movePlies }: GameSidePanelP
           </div>
         )}
       </section>
+      {footer != null && (
+        <div className="mt-4 shrink-0 rounded-xl border border-slate-200/90 bg-white/80 p-3 shadow-inner ring-1 ring-slate-900/5">
+          {footer}
+        </div>
+      )}
     </aside>
   );
 }

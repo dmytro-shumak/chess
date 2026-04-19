@@ -4,7 +4,8 @@ import { Figure } from "../models/figures/Figure";
 
 interface PlayerBarProps {
   player: Player;
-  seconds: number;
+  /** When omitted, no clock is shown (e.g. vs computer). */
+  seconds?: number;
   active: boolean;
   capturedFigures: Figure[];
 }
@@ -21,9 +22,11 @@ function PlayerBar({ player, seconds, active, capturedFigures }: PlayerBarProps)
     >
       <div className="flex items-center justify-between gap-3">
         <span className="truncate text-sm font-semibold sm:text-base">{player.name}</span>
-        <span className="rounded px-2.5 py-1 font-mono text-sm tabular-nums sm:text-base bg-white text-slate-700 shadow-sm">
-          {new Date(seconds * 1000).toISOString().slice(14, 19)}
-        </span>
+        {seconds != null && (
+          <span className="rounded px-2.5 py-1 font-mono text-sm tabular-nums sm:text-base bg-white text-slate-700 shadow-sm">
+            {new Date(seconds * 1000).toISOString().slice(14, 19)}
+          </span>
+        )}
       </div>
       <div className="flex flex-wrap gap-1 text-xs">
         <span className="font-medium">Captured:</span>

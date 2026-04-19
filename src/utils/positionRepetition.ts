@@ -13,7 +13,7 @@ function encodeSquare(board: Board, x: number, y: number): string {
 
 // Castling rights like FEN (KQkq): only if king still unmoved on e-file start and corner rook unmoved.
 // Uppercase = white (K kingside h-file, Q queenside a-file); lowercase = black on rank 8.
-function castlingRights(board: Board): string {
+export function fenCastlingRights(board: Board): string {
   let s = "";
   const wk = board.getCell(4, 7).figure;
   if (wk?.name === FigureNames.KING && wk.color === Colors.WHITE && wk.isFirstMove) {
@@ -47,5 +47,5 @@ export function buildRepetitionKey(board: Board, sideToMove: Colors): string {
   const ep = board.enPassantTarget;
   // Coords of the ep capture square; "-" if no en passant this turn.
   const epPart = ep ? `${ep.x},${ep.y}` : "-";
-  return `${rows.join("/")}|t:${sideToMove}|ep:${epPart}|c:${castlingRights(board)}`;
+  return `${rows.join("/")}|t:${sideToMove}|ep:${epPart}|c:${fenCastlingRights(board)}`;
 }

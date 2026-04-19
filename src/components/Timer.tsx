@@ -17,6 +17,9 @@ interface TimerProps {
   capturedByBlack: import("../models/figures/Figure").Figure[];
   onOutOfTime: (loser: Colors) => void;
   movePlies: string[];
+  /** When false, no clocks or timeout logic (e.g. vs computer). */
+  clocked?: boolean;
+  sidePanelFooter?: ReactNode;
 }
 
 const INITIAL_TIME = 300; // 5 minutes in seconds
@@ -33,13 +36,15 @@ function Timer({
   capturedByBlack,
   onOutOfTime,
   movePlies,
+  clocked = true,
+  sidePanelFooter,
 }: TimerProps) {
   const [blackTime, setBlackTime] = useState(INITIAL_TIME);
   const [whiteTime, setWhiteTime] = useState(INITIAL_TIME);
   const timer = useRef<null | ReturnType<typeof setInterval>>(null);
 
   useEffect(() => {
-    if (gameStatus !== GameStatus.ACTIVE || !clocksStarted) return;
+    if (!clocked || gameStatus !== GameStatus.ACTIVE || !clocksStarted) return;
 
     if (currentPlayer?.color === Colors.WHITE && whiteTime <= 0) {
       onOutOfTime(Colors.WHITE);
@@ -49,10 +54,10 @@ function Timer({
      if (currentPlayer?.color === Colors.BLACK && blackTime <= 0) {
       onOutOfTime(Colors.BLACK);
     }
-  }, [whiteTime, blackTime, gameStatus, clocksStarted, currentPlayer, onOutOfTime]);
+  }, [clocked, whiteTime, blackTime, gameStatus, clocksStarted, currentPlayer, onOutOfTime]);
 
   useEffect(() => {
-    if (gameStatus !== GameStatus.ACTIVE || !clocksStarted) {
+    if (!clocked || gameStatus !== GameStatus.ACTIVE || !clocksStarted) {
       if (timer.current) {
         clearInterval(timer.current);
         timer.current = null;
@@ -73,7 +78,7 @@ function Timer({
         timer.current = null;
       }
     };
-  }, [currentPlayer, gameStatus, clocksStarted]);
+  }, [clocked, currentPlayer, gameStatus, clocksStarted]);
 
   function decrementBlackTimer() {
     setBlackTime((prev) => (prev <= 0 ? 0 : prev - 1));
@@ -84,8 +89,10 @@ function Timer({
   }
 
   function handleRestart() {
-    setWhiteTime(INITIAL_TIME);
-    setBlackTime(INITIAL_TIME);
+    if (clocked) {
+      setWhiteTime(INITIAL_TIME);
+      setBlackTime(INITIAL_TIME);
+    }
     restart();
   }
 
@@ -99,22 +106,23 @@ function Timer({
       <div className="flex w-full max-w-[640px] flex-col items-center gap-1">
         <PlayerBar
           player={blackPlayer}
-          seconds={blackTime}
+          seconds={clocked ? blackTime : undefined}
           active={blackActive}
           capturedFigures={capturedByBlack}
         />
         {children}
         <PlayerBar
           player={whitePlayer}
-          seconds={whiteTime}
+          seconds={clocked ? whiteTime : undefined}
           active={whiteActive}
           capturedFigures={capturedByWhite}
         />
       </div>
       <GameSidePanel
-        restartDisabled={!clocksStarted && gameStatus === GameStatus.ACTIVE}
+        restartDisabled={clocked && !clocksStarted && gameStatus === GameStatus.ACTIVE}
         onRestart={handleRestart}
         movePlies={movePlies}
+        footer={sidePanelFooter}
       />
     </div>
   );

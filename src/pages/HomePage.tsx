@@ -20,13 +20,12 @@ export default function HomePage() {
           >
             Play vs computer
           </Link>
-          <button
-            type="button"
-            disabled
-            className="ui-game-button pointer-events-none cursor-not-allowed bg-linear-to-br from-slate-400 via-slate-500 to-slate-600 opacity-60 shadow-none"
+          <Link
+            to={ROUTES.online}
+            className="ui-game-button block bg-linear-to-br from-sky-700 via-sky-800 to-sky-950 text-center shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2"
           >
             Online game
-          </button>
+          </Link>
         </div>
       </div>
     </div>

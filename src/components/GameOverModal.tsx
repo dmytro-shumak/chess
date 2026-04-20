@@ -6,9 +6,10 @@ interface GameOverModalProps {
   onOpenChange: (open: boolean) => void;
   copy: GameOverModalCopy;
   onRematch: () => void;
+  showRematch?: boolean;
 }
 
-function GameOverModal({ open, onOpenChange, copy, onRematch }: GameOverModalProps) {
+function GameOverModal({ open, onOpenChange, copy, onRematch, showRematch = true }: GameOverModalProps) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange} modal>
       <Dialog.Portal>
@@ -47,13 +48,15 @@ function GameOverModal({ open, onOpenChange, copy, onRematch }: GameOverModalPro
             >
               Close
             </Dialog.Close>
-            <button
-              type="button"
-              onClick={onRematch}
-              className="rounded-xl bg-amber-600 px-5 py-2.5 text-sm font-semibold text-white shadow-glow-amber transition hover:bg-amber-700"
-            >
-              Rematch
-            </button>
+            {showRematch && (
+              <button
+                type="button"
+                onClick={onRematch}
+                className="rounded-xl bg-amber-600 px-5 py-2.5 text-sm font-semibold text-white shadow-glow-amber transition hover:bg-amber-700"
+              >
+                Rematch
+              </button>
+            )}
           </div>
         </Dialog.Content>
       </Dialog.Portal>

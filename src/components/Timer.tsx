@@ -19,6 +19,12 @@ interface TimerProps {
   movePlies: string[];
   /** When false, no clocks or timeout logic (e.g. vs computer). */
   clocked?: boolean;
+  /** Swap vertical order so the black player bar is at the bottom (online black perspective). */
+  invertPlayerBars?: boolean;
+  /** Override default 5+5 minutes (e.g. online room time control). */
+  initialClockSeconds?: number;
+  /** When true, the restart control stays disabled (e.g. online mock cannot reset shared storage). */
+  lockRestart?: boolean;
   sidePanelFooter?: ReactNode;
 }
 
@@ -37,11 +43,20 @@ function Timer({
   onOutOfTime,
   movePlies,
   clocked = true,
+  invertPlayerBars = false,
+  initialClockSeconds,
+  lockRestart = false,
   sidePanelFooter,
 }: TimerProps) {
-  const [blackTime, setBlackTime] = useState(INITIAL_TIME);
-  const [whiteTime, setWhiteTime] = useState(INITIAL_TIME);
+  const startSeconds = initialClockSeconds ?? INITIAL_TIME;
+  const [blackTime, setBlackTime] = useState(startSeconds);
+  const [whiteTime, setWhiteTime] = useState(startSeconds);
   const timer = useRef<null | ReturnType<typeof setInterval>>(null);
+
+  useEffect(() => {
+    setBlackTime(startSeconds);
+    setWhiteTime(startSeconds);
+  }, [startSeconds]);
 
   useEffect(() => {
     if (!clocked || gameStatus !== GameStatus.ACTIVE || !clocksStarted) return;
@@ -90,8 +105,8 @@ function Timer({
 
   function handleRestart() {
     if (clocked) {
-      setWhiteTime(INITIAL_TIME);
-      setBlackTime(INITIAL_TIME);
+      setWhiteTime(startSeconds);
+      setBlackTime(startSeconds);
     }
     restart();
   }
@@ -101,25 +116,36 @@ function Timer({
   const whiteActive =
     gameStatus === GameStatus.ACTIVE && currentPlayer?.color === Colors.WHITE;
 
+  const topPlayer = invertPlayerBars ? whitePlayer : blackPlayer;
+  const bottomPlayer = invertPlayerBars ? blackPlayer : whitePlayer;
+  const topSeconds = invertPlayerBars ? whiteTime : blackTime;
+  const bottomSeconds = invertPlayerBars ? blackTime : whiteTime;
+  const topActive = invertPlayerBars ? whiteActive : blackActive;
+  const bottomActive = invertPlayerBars ? blackActive : whiteActive;
+  const topCaptured = invertPlayerBars ? capturedByWhite : capturedByBlack;
+  const bottomCaptured = invertPlayerBars ? capturedByBlack : capturedByWhite;
+
   return (
     <div className="flex w-full max-w-7xl flex-col items-stretch gap-8 lg:flex-row lg:items-start lg:justify-center">
       <div className="flex w-full max-w-[640px] flex-col items-center gap-1">
         <PlayerBar
-          player={blackPlayer}
-          seconds={clocked ? blackTime : undefined}
-          active={blackActive}
-          capturedFigures={capturedByBlack}
+          player={topPlayer}
+          seconds={clocked ? topSeconds : undefined}
+          active={topActive}
+          capturedFigures={topCaptured}
         />
         {children}
         <PlayerBar
-          player={whitePlayer}
-          seconds={clocked ? whiteTime : undefined}
-          active={whiteActive}
-          capturedFigures={capturedByWhite}
+          player={bottomPlayer}
+          seconds={clocked ? bottomSeconds : undefined}
+          active={bottomActive}
+          capturedFigures={bottomCaptured}
         />
       </div>
       <GameSidePanel
-        restartDisabled={clocked && !clocksStarted && gameStatus === GameStatus.ACTIVE}
+        restartDisabled={
+          lockRestart || (clocked && !clocksStarted && gameStatus === GameStatus.ACTIVE)
+        }
         onRestart={handleRestart}
         movePlies={movePlies}
         footer={sidePanelFooter}

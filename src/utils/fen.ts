@@ -9,6 +9,16 @@ export function squareToAlgebraic(x: number, y: number): string {
   return String.fromCharCode(97 + x) + String(8 - y);
 }
 
+export function uciFromSquares(
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+  promotion?: "q" | "r" | "b" | "n",
+): string {
+  let s = squareToAlgebraic(from.x, from.y) + squareToAlgebraic(to.x, to.y);
+  if (promotion) s += promotion;
+  return s;
+}
+
 export type BoardMoveSquares = { from: { x: number; y: number }; to: { x: number; y: number } };
 
 /** UCI like e2e4 or e7e8q → board coordinates (promotion letter ignored for squares). */

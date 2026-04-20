@@ -6,7 +6,9 @@ import { Cell } from "../models/Cell";
 import { Player } from "../models/Player";
 import { GameStatus } from "../models/GameStatus";
 import { Colors } from "../models/Colors";
+import { FigureNames } from "../models/figures/Figure";
 import type { BoardMoveSquares } from "../utils/fen";
+import { uciFromSquares } from "../utils/fen";
 import {
   appendCheckSuffix,
   buildPromotionSanBase,
@@ -34,9 +36,25 @@ interface BoardProps {
   gameStatus: GameStatus;
   checkKingCell: Cell | null;
   onMovePlayed?: (san: string) => void;
+  onMoveUci?: (uci: string) => void;
   inputLocked?: boolean;
   lastMoveHighlight?: LastMove | null;
   onLastMoveHighlight?: (move: LastMove | null) => void;
+  /** When BLACK, the board is rotated so that black's pieces are toward the bottom edge. */
+  viewFromColor?: Colors;
+}
+
+function promotionLetter(piece: PromotionChoice): "q" | "r" | "b" | "n" {
+  switch (piece) {
+    case FigureNames.QUEEN:
+      return "q";
+    case FigureNames.ROOK:
+      return "r";
+    case FigureNames.BISHOP:
+      return "b";
+    case FigureNames.KNIGHT:
+      return "n";
+  }
 }
 
 function BoardComponent({
@@ -47,9 +65,11 @@ function BoardComponent({
   gameStatus,
   checkKingCell,
   onMovePlayed,
+  onMoveUci,
   inputLocked = false,
   lastMoveHighlight,
   onLastMoveHighlight,
+  viewFromColor = Colors.WHITE,
 }: BoardProps) {
   const [selectedCell, setSelectedCell] = useState<Cell | null>(null);
   const [internalLastMove, setInternalLastMove] = useState<LastMove | null>(null);
@@ -89,6 +109,7 @@ function BoardComponent({
       }
       const san = baseSan + appendCheckSuffix(board, moverColor);
       setLastMoveDisplay({ from: { x: from.x, y: from.y }, to: { x: cell.x, y: cell.y } });
+      onMoveUci?.(uciFromSquares({ x: from.x, y: from.y }, { x: cell.x, y: cell.y }));
       onMovePlayed?.(san);
       swapPlayer();
       updateBoard();
@@ -132,6 +153,7 @@ function BoardComponent({
     promotionFromRef.current = null;
     board.hightlightCells(null, currentPlayer?.color ?? null);
     setLastMoveDisplay({ from: { x: fromCoords.x, y: fromCoords.y }, to: { x: to.x, y: to.y } });
+    onMoveUci?.(uciFromSquares(fromCoords, to, promotionLetter(piece)));
     onMovePlayed?.(san);
     swapPlayer();
     updateBoard();
@@ -142,6 +164,11 @@ function BoardComponent({
       ? (board.getCell(board.pendingPromotion.x, board.pendingPromotion.y).figure?.color ?? Colors.WHITE)
       : Colors.WHITE;
 
+  const rowOrder =
+    viewFromColor === Colors.BLACK ? [7, 6, 5, 4, 3, 2, 1, 0] : [0, 1, 2, 3, 4, 5, 6, 7];
+  const colOrder =
+    viewFromColor === Colors.BLACK ? [7, 6, 5, 4, 3, 2, 1, 0] : [0, 1, 2, 3, 4, 5, 6, 7];
+
   return (
     <div className="my-1">
       <PromotionModal
@@ -150,20 +177,23 @@ function BoardComponent({
         onSelect={handlePromotionSelect}
       />
       <div className="grid h-[640px] w-[640px] max-w-full grid-cols-8 grid-rows-8 border-2 border-slate-900 shadow-xl">
-        {board.cells.map((row, index) => (
-          <Fragment key={index}>
-            {row.map((cell) => (
-              <CellComponent
-                cell={cell}
-                key={cell.id}
-                selected={cell.x === selectedCell?.x && cell.y === selectedCell?.y}
-                kingInCheck={
-                  checkKingCell !== null && cell.x === checkKingCell.x && cell.y === checkKingCell.y
-                }
-                lastMoveRole={lastMoveRoleForCell(cell, displayLastMove)}
-                selectFigure={selectFigure}
-              />
-            ))}
+        {rowOrder.map((yi) => (
+          <Fragment key={yi}>
+            {colOrder.map((xi) => {
+              const cell = board.getCell(xi, yi);
+              return (
+                <CellComponent
+                  cell={cell}
+                  key={cell.id}
+                  selected={cell.x === selectedCell?.x && cell.y === selectedCell?.y}
+                  kingInCheck={
+                    checkKingCell !== null && cell.x === checkKingCell.x && cell.y === checkKingCell.y
+                  }
+                  lastMoveRole={lastMoveRoleForCell(cell, displayLastMove)}
+                  selectFigure={selectFigure}
+                />
+              );
+            })}
           </Fragment>
         ))}
       </div>

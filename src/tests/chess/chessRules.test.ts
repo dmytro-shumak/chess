@@ -15,6 +15,14 @@ describe("parseUci", () => {
   it("returns null for garbage", () => {
     expect(parseUci("z9z9")).toBeNull();
   });
+
+  it("trims and lowercases input", () => {
+    expect(parseUci("  E2E4  ")).toEqual({ from: "e2", to: "e4" });
+  });
+
+  it("rejects invalid promotion suffix", () => {
+    expect(parseUci("e7e8x")).toBeNull();
+  });
 });
 
 describe("chess.js moves", () => {

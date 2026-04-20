@@ -1,7 +1,5 @@
 import type { Colors } from "../models/Colors";
 
-export const ONLINE_PROTOCOL_VERSION = "1" as const;
-
 export type PlayerId = string;
 export type RoomId = string;
 
@@ -94,7 +92,3 @@ export type ServerToClientMessage =
       message: string;
     }
   | { type: "pong" };
-
-export type WireEnvelope =
-  | { source: "client"; roomId: RoomId | null; playerId: PlayerId; body: ClientToServerMessage }
-  | { source: "server"; roomId: RoomId | null; body: ServerToClientMessage };

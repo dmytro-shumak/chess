@@ -22,10 +22,6 @@ export function roomGameStarted(state: ClientRoomState | null): boolean {
   return Boolean(state?.guestId && state.whitePlayerId && state.blackPlayerId);
 }
 
-export function roomWaitingForGuest(state: ClientRoomState | null): boolean {
-  return Boolean(state && !state.guestId);
-}
-
 export function myColorInRoom(state: ClientRoomState | null, playerId: PlayerId): Colors | null {
   if (!state?.whitePlayerId || !state.blackPlayerId) return null;
   if (state.whitePlayerId === playerId) return Colors.WHITE;

@@ -64,10 +64,10 @@ function Timer({
 
     if (currentPlayer?.color === Colors.WHITE && whiteTime <= 0) {
       onOutOfTime(Colors.WHITE);
-      return
-    } 
+      return;
+    }
 
-     if (currentPlayer?.color === Colors.BLACK && blackTime <= 0) {
+    if (currentPlayer?.color === Colors.BLACK && blackTime <= 0) {
       onOutOfTime(Colors.BLACK);
     }
   }, [clocked, whiteTime, blackTime, gameStatus, clocksStarted, currentPlayer, onOutOfTime]);

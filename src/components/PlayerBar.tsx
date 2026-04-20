@@ -33,7 +33,7 @@ function PlayerBar({ player, seconds, active, capturedFigures }: PlayerBarProps)
         {capturedFigures.length > 0 &&
           capturedFigures.map((c) => (
             <span key={c.key} className="inline-flex items-center gap-1 rounded bg-slate-200 px-1 py-0.5">
-              {c.Logo && <c.Logo width={16} height={16} />}
+              <c.Logo width={16} height={16} />
               {c.label}
             </span>
           ))}

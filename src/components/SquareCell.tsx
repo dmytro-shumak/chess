@@ -1,10 +1,8 @@
-import { Colors } from "../models/Colors";
 import { classNames } from "../utils/classNames";
 import CellCoordinates from "./CellCoordinates";
 import type { SvgComponent } from "../types/svg";
 
 export interface SquareCellProps {
-  square: string;
   fileIndex: number;
   rankNumber: number;
   isLightSquare: boolean;
@@ -18,7 +16,6 @@ export interface SquareCellProps {
 }
 
 function SquareCell({
-  square,
   fileIndex,
   rankNumber,
   isLightSquare,
@@ -57,13 +54,13 @@ function SquareCell({
       {showMoveHint && (
         <span
           className={classNames(
-            "pointer-events-none absolute left-1/2 top-1/2 z-[3] -translate-x-1/2 -translate-y-1/2 rounded-full bg-green-500 shadow-sm",
+            "pointer-events-none absolute left-1/2 top-1/2 z-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-green-500 shadow-sm",
             isCaptureHint ? "h-10 w-10 opacity-50" : "h-5 w-5",
           )}
           aria-hidden
         />
       )}
-      {Logo && <Logo className="relative z-[2]" width="100%" height="100%" />}
+      {Logo && <Logo className="relative z-2" width="100%" height="100%" />}
     </div>
   );
 }

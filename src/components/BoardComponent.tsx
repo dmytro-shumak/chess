@@ -167,7 +167,6 @@ function BoardComponent({
           return (
             <SquareCell
               key={square}
-              square={square}
               fileIndex={fileIndex}
               rankNumber={rankNumber}
               isLightSquare={isLight}

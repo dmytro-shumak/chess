@@ -8,7 +8,6 @@ export default {
     extend: {
       boxShadow: {
         "surface-elevated": "0 8px 30px rgba(15, 23, 42, 0.08)",
-        "glow-emerald": "0 10px 40px -10px rgba(5, 150, 105, 0.65)",
         "glow-amber": "0 10px 40px -10px rgba(217, 119, 6, 0.55)",
       },
       colors: {

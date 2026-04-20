@@ -2,7 +2,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { BISHOP, KNIGHT, QUEEN, ROOK } from "chess.js";
 import { Colors } from "../models/Colors";
 import type { SvgComponent } from "../types/svg";
-import type { PromotionChoice } from "../chess/uci";
+import type { PromotionChoice } from "../chess/promotion";
 import bishopDark from "../assets/bishop-dark.svg?react";
 import bishopLight from "../assets/bishop-white.svg?react";
 import knightDark from "../assets/knight-dark.svg?react";
@@ -12,7 +12,7 @@ import queenLight from "../assets/queen-white.svg?react";
 import rookDark from "../assets/rook-dark.svg?react";
 import rookLight from "../assets/rook-white.svg?react";
 
-export type { PromotionChoice } from "../chess/uci";
+export type { PromotionChoice } from "../chess/promotion";
 
 const OPTIONS: { name: PromotionChoice; label: string; dark: SvgComponent; light: SvgComponent }[] = [
   { name: QUEEN, label: "Queen", dark: queenDark, light: queenLight },
@@ -31,9 +31,9 @@ function PromotionModal({ open, color, onSelect }: PromotionModalProps) {
   return (
     <Dialog.Root open={open} modal onOpenChange={() => {}}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[200] bg-black/45" />
+        <Dialog.Overlay className="fixed inset-0 z-200 bg-black/45" />
         <Dialog.Content
-          className="fixed left-1/2 top-1/2 z-[201] w-[min(100vw-2rem,280px)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-slate-200 bg-white p-4 shadow-xl"
+          className="fixed left-1/2 top-1/2 z-201 w-[min(100vw-2rem,280px)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-slate-200 bg-white p-4 shadow-xl"
           onPointerDownOutside={(e) => e.preventDefault()}
           onInteractOutside={(e) => e.preventDefault()}
           onEscapeKeyDown={(e) => e.preventDefault()}

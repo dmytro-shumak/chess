@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { Chess, PAWN, QUEEN } from "chess.js";
 import { parseUci } from "./uci";
+import { replayMovesFromUci } from "./replayMovesFromUci";
 
 describe("parseUci", () => {
   it("parses quiet move", () => {
@@ -33,5 +34,30 @@ describe("chess.js moves", () => {
     const c = new Chess("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1");
     const m = c.move({ from: "e1", to: "g1" });
     expect(m?.san).toBe("O-O");
+  });
+});
+
+describe("replayMovesFromUci", () => {
+  it("replays opening moves and SAN list", () => {
+    const moves = [
+      { uci: "e2e4", san: "e4" },
+      { uci: "e7e5", san: "e5" },
+    ];
+    const r = replayMovesFromUci(moves, "t1");
+    expect(r.movePlies).toEqual(["e4", "e5"]);
+    expect(r.chess.get("e4")?.type).toBe(PAWN);
+    expect(r.chess.get("e5")?.type).toBe(PAWN);
+    expect(r.lastHighlight).toEqual({ from: "e7", to: "e5" });
+  });
+
+  it("skips invalid UCI and continues", () => {
+    const moves = [
+      { uci: "e2e4", san: "e4" },
+      { uci: "z9z9", san: "??" },
+      { uci: "e7e5", san: "e5" },
+    ];
+    const r = replayMovesFromUci(moves, "t2");
+    expect(r.movePlies).toEqual(["e4", "??", "e5"]);
+    expect(r.chess.get("e5")).toBeDefined();
   });
 });

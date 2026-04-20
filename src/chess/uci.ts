@@ -1,7 +1,8 @@
 import type { Square } from "chess.js";
 import { BISHOP, KNIGHT, QUEEN, ROOK } from "chess.js";
+import type { PromotionChoice } from "./promotion";
 
-export type PromotionChoice = typeof QUEEN | typeof ROOK | typeof BISHOP | typeof KNIGHT;
+export type { PromotionChoice } from "./promotion";
 
 export function uciFromParts(from: Square, to: Square, promotion?: PromotionChoice): string {
   return from + to + (promotion ?? "");

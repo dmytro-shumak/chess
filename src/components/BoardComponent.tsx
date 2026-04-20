@@ -12,21 +12,18 @@ import {
 } from "chess.js";
 import { useMemo, useState } from "react";
 import SquareCell from "./SquareCell";
-import PromotionModal, { type PromotionChoice } from "./PromotionModal";
+import PromotionModal from "./PromotionModal";
 import { Player } from "../models/Player";
 import { GameStatus } from "../models/GameStatus";
 import { Colors } from "../models/Colors";
 import { squaresInDisplayOrder } from "../chess/squares";
 import { pieceLogo } from "../chess/pieceGlyphs";
 import { uciFromParts } from "../chess/uci";
+import type { SquareHighlight } from "../chess/types";
+import { squareFileAndRank } from "../chess/squareCoords";
+import type { PromotionChoice } from "../chess/promotion";
 
-export type SquareHighlight = { from: Square; to: Square };
-
-function parseSquareCoords(square: Square): { fileIndex: number; rankNumber: number } {
-  const fileIndex = square.charCodeAt(0) - 97;
-  const rankNumber = parseInt(square[1]!, 10);
-  return { fileIndex, rankNumber };
-}
+export type { SquareHighlight } from "../chess/types";
 
 interface BoardProps {
   chess: Chess;
@@ -170,7 +167,7 @@ function BoardComponent({
           const isLight = sqColor === "light";
           const piece = chess.get(square);
           const Logo = piece ? pieceLogo(piece.type, piece.color) : null;
-          const { fileIndex, rankNumber } = parseSquareCoords(square);
+          const { fileIndex, rankNumber } = squareFileAndRank(square);
           const selected = square === selectedSquare;
           const hint = legalTargets.has(square);
           const cap = hint && chess.get(square) != null;

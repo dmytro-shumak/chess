@@ -1,27 +1,23 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Chess, WHITE } from "chess.js";
-import BoardComponent, { type SquareHighlight } from "./BoardComponent";
+import { Chess } from "chess.js";
+import type { SquareHighlight } from "../chess/types";
+import BoardComponent from "./BoardComponent";
 import GameOverModal from "./GameOverModal";
 import Timer from "./Timer";
 import { Colors } from "../models/Colors";
 import { Player } from "../models/Player";
 import { GameStatus } from "../models/GameStatus";
 import { getGameOverModalCopy } from "../utils/getGameOverModalCopy";
-import { gameStatusFromChess } from "../chess/gameStatusFromChess";
-import { kingSquareForColor } from "../chess/kingSquare";
-import { parseUci } from "../chess/uci";
-import {
-  capturedDisplayFromMove,
-  resetCapturedDisplayKeyCounter,
-  type CapturedDisplay,
-} from "../chess/capturedFromMove";
+import { replayMovesFromUci } from "../chess/replayMovesFromUci";
+import { activeCheckSquare } from "../chess/activeCheckSquare";
 import { useOnlineRuntime } from "../online/OnlineRuntimeContext";
 import { useOnlineRoom } from "../online/OnlineRoomContext";
 import { myColorInRoom, roomGameStarted } from "../online/roomState";
 import { ROUTES } from "../routes";
-
-const GAME_OVER_MODAL_DELAY_MS = 500;
+import { useDelayedGameOverModal } from "../hooks/useDelayedGameOverModal";
+import { useGameStatusFromChess } from "../hooks/useGameStatusFromChess";
+import { useCapturedPieces } from "../hooks/useCapturedPieces";
 
 export default function OnlineChessGame() {
   const { playerId, transport } = useOnlineRuntime();
@@ -33,13 +29,12 @@ export default function OnlineChessGame() {
   const [movePlies, setMovePlies] = useState<string[]>([]);
   const [boardResetKey, setBoardResetKey] = useState(0);
   const [clocksStarted, setClocksStarted] = useState(false);
-  const [gameOverDismissed, setGameOverDismissed] = useState(false);
-  const [gameOverModalReady, setGameOverModalReady] = useState(false);
-  const [capturedByWhite, setCapturedByWhite] = useState<CapturedDisplay[]>([]);
-  const [capturedByBlack, setCapturedByBlack] = useState<CapturedDisplay[]>([]);
   const [lastMoveHighlight, setLastMoveHighlight] = useState<SquareHighlight | null>(null);
-  const gameOverModalDelayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSyncedV = useRef(-1);
+  const { capturedByWhite, capturedByBlack, reset: resetCaptures, replaceAll } = useCapturedPieces();
+  const { gameOverModalReady, gameOverDismissed, setGameOverDismissed } = useDelayedGameOverModal(gameStatus);
+
+  useGameStatusFromChess(chess, setGameStatus, { preserveTimeouts: true });
 
   const myColor = useMemo(() => myColorInRoom(room, playerId), [room, playerId]);
 
@@ -58,79 +53,22 @@ export default function OnlineChessGame() {
   }, [room]);
 
   useEffect(() => {
-    if (gameStatus === GameStatus.ACTIVE) {
-      setGameOverDismissed(false);
-    }
-  }, [gameStatus]);
-
-  useEffect(() => {
-    if (gameOverModalDelayRef.current) {
-      clearTimeout(gameOverModalDelayRef.current);
-      gameOverModalDelayRef.current = null;
-    }
-
-    if (gameStatus === GameStatus.ACTIVE) {
-      setGameOverModalReady(false);
-      return;
-    }
-
-    setGameOverModalReady(false);
-    gameOverModalDelayRef.current = setTimeout(() => {
-      gameOverModalDelayRef.current = null;
-      setGameOverModalReady(true);
-    }, GAME_OVER_MODAL_DELAY_MS);
-
-    return () => {
-      if (gameOverModalDelayRef.current) {
-        clearTimeout(gameOverModalDelayRef.current);
-        gameOverModalDelayRef.current = null;
-      }
-    };
-  }, [gameStatus]);
-
-  useEffect(() => {
     if (!room || !roomGameStarted(room)) return;
     if (room.v === lastSyncedV.current) return;
     lastSyncedV.current = room.v;
 
-    resetCapturedDisplayKeyCounter();
-    const c = new Chess();
-    const wc: CapturedDisplay[] = [];
-    const bc: CapturedDisplay[] = [];
-    let lastHl: SquareHighlight | null = null;
-
-    for (const mv of room.moves) {
-      const p = parseUci(mv.uci);
-      if (!p) continue;
-      const m = c.move({ from: p.from, to: p.to, promotion: p.promotion });
-      if (!m) continue;
-      lastHl = { from: p.from, to: p.to };
-      const cap = capturedDisplayFromMove(m);
-      if (cap) {
-        if (m.color === WHITE) wc.push(cap);
-        else bc.push(cap);
-      }
-    }
-
-    setChess(new Chess(c.fen()));
-    setCapturedByWhite(wc);
-    setCapturedByBlack(bc);
-    setLastMoveHighlight(lastHl);
-    setMovePlies(room.moves.map((m) => m.san));
+    const replay = replayMovesFromUci(room.moves, `room-${room.v}`);
+    setChess(replay.chess);
+    replaceAll(replay.capturedByWhite, replay.capturedByBlack);
+    setLastMoveHighlight(replay.lastHighlight);
+    setMovePlies(replay.movePlies);
 
     const nextColor = room.moves.length % 2 === 0 ? Colors.WHITE : Colors.BLACK;
     setCurrentPlayer(nextColor === Colors.WHITE ? whitePlayer : blackPlayer);
     if (room.moves.length > 0) {
       setClocksStarted(true);
     }
-  }, [room?.v, room?.moves, whitePlayer, blackPlayer]);
-
-  useEffect(() => {
-    setGameStatus((prev) => {
-      if (prev === GameStatus.TIMEOUT_WHITE || prev === GameStatus.TIMEOUT_BLACK) return prev;
-      return gameStatusFromChess(chess);
-    });
-  }, [chess]);
+  }, [room?.v, room?.moves, whitePlayer, blackPlayer, replaceAll]);
 
   const handleOutOfTime = useCallback((loser: Colors) => {
     setGameStatus(loser === Colors.WHITE ? GameStatus.TIMEOUT_WHITE : GameStatus.TIMEOUT_BLACK);
@@ -154,24 +92,17 @@ export default function OnlineChessGame() {
 
   function restart() {
     lastSyncedV.current = -1;
-    resetCapturedDisplayKeyCounter();
     setChess(new Chess());
     setBoardResetKey((k) => k + 1);
     setMovePlies([]);
-    setCapturedByWhite([]);
-    setCapturedByBlack([]);
+    resetCaptures();
     setLastMoveHighlight(null);
     setGameStatus(GameStatus.ACTIVE);
     setClocksStarted(false);
-    setGameOverDismissed(false);
     setCurrentPlayer(whitePlayer);
   }
 
-  const checkSquare =
-    gameStatus === GameStatus.ACTIVE && chess.inCheck()
-      ? kingSquareForColor(chess, chess.turn())
-      : null;
-
+  const checkSquare = activeCheckSquare(chess, gameStatus);
   const gameOverCopy = getGameOverModalCopy(gameStatus);
 
   const inputLocked =

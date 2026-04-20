@@ -1,6 +1,6 @@
 import BoardComponent from "./BoardComponent";
 import GameOverModal from "./GameOverModal";
-import { Board } from "../models/Board";
+import { Board, newBoardWithStartingPosition } from "../models/Board";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Colors } from "../models/Colors";
 import { Player } from "../models/Player";
@@ -16,7 +16,7 @@ const PLAYER_BLACK = new Player(Colors.BLACK, "Black");
 const GAME_OVER_MODAL_DELAY_MS = 500;
 
 export default function LocalChessGame() {
-  const [board, setBoard] = useState(new Board());
+  const [board, setBoard] = useState(() => newBoardWithStartingPosition());
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
   const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.ACTIVE);
   const [movePlies, setMovePlies] = useState<string[]>([]);
@@ -34,9 +34,7 @@ export default function LocalChessGame() {
   }
 
   function initBoard() {
-    const newBoard = new Board();
-    newBoard.initCells();
-    newBoard.addFigures();
+    const newBoard = newBoardWithStartingPosition();
     setBoard(newBoard);
     setCurrentPlayer(PLAYER_WHITE);
     setMovePlies([]);

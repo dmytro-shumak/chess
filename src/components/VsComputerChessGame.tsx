@@ -2,7 +2,7 @@ import BoardComponent from "./BoardComponent";
 import GameOverModal from "./GameOverModal";
 import { StockfishClient } from "../engine/stockfishClient";
 import { DEFAULT_ENGINE_PRESET_ID, ENGINE_PRESETS, type EnginePreset } from "../engine/enginePresets";
-import { Board } from "../models/Board";
+import { Board, newBoardWithStartingPosition } from "../models/Board";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Colors } from "../models/Colors";
 import { Player } from "../models/Player";
@@ -24,7 +24,7 @@ function fullMoveNumberFromPlyCount(plies: number): number {
 }
 
 export default function VsComputerChessGame() {
-  const [board, setBoard] = useState(new Board());
+  const [board, setBoard] = useState(() => newBoardWithStartingPosition());
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
   const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.ACTIVE);
   const [movePlies, setMovePlies] = useState<string[]>([]);
@@ -50,9 +50,7 @@ export default function VsComputerChessGame() {
   }
 
   function initBoard() {
-    const newBoard = new Board();
-    newBoard.initCells();
-    newBoard.addFigures();
+    const newBoard = newBoardWithStartingPosition();
     setBoard(newBoard);
     setCurrentPlayer(PLAYER_WHITE);
     setMovePlies([]);

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import BoardComponent from "./BoardComponent";
 import GameOverModal from "./GameOverModal";
 import Timer from "./Timer";
-import { Board } from "../models/Board";
+import { Board, newBoardWithStartingPosition } from "../models/Board";
 import { Colors } from "../models/Colors";
 import { Player } from "../models/Player";
 import { GameStatus } from "../models/GameStatus";
@@ -18,18 +18,11 @@ import { ROUTES } from "../routes";
 
 const GAME_OVER_MODAL_DELAY_MS = 500;
 
-function newBoardWithPieces(): Board {
-  const b = new Board();
-  b.initCells();
-  b.addFigures();
-  return b;
-}
-
 export default function OnlineChessGame() {
   const { playerId, transport } = useOnlineRuntime();
   const { room, roomId } = useOnlineRoom();
 
-  const [board, setBoard] = useState(() => newBoardWithPieces());
+  const [board, setBoard] = useState(() => newBoardWithStartingPosition());
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
   const [gameStatus, setGameStatus] = useState(GameStatus.ACTIVE);
   const [movePlies, setMovePlies] = useState<string[]>([]);
@@ -94,9 +87,7 @@ export default function OnlineChessGame() {
     if (room.v === lastSyncedV.current) return;
     lastSyncedV.current = room.v;
 
-    const b = new Board();
-    b.initCells();
-    b.addFigures();
+    const b = newBoardWithStartingPosition();
     repetitionCounts.current.clear();
     repetitionCounts.current.set(buildRepetitionKey(b, Colors.WHITE), 1);
 
@@ -143,7 +134,7 @@ export default function OnlineChessGame() {
 
   function restart() {
     lastSyncedV.current = -1;
-    const b = newBoardWithPieces();
+    const b = newBoardWithStartingPosition();
     setBoard(b);
     setBoardResetKey((k) => k + 1);
     setMovePlies([]);

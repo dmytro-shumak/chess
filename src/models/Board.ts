@@ -21,6 +21,13 @@ export class Board {
   // Half-moves since last pawn move or capture; used for 50-move rule.
   halfMoveClock = 0;
 
+  static create(): Board {
+    const board = new Board();
+    board.initCells();
+    board.addFigures();
+    return board;
+  }
+
   recordHalfMoveAfterPly(pawnMove: boolean, capture: boolean): void {
     if (pawnMove || capture) {
       this.halfMoveClock = 0;
@@ -255,4 +262,11 @@ export class Board {
     }
     return null;
   }
+}
+
+export function newBoardWithStartingPosition(): Board {
+  const b = new Board();
+  b.initCells();
+  b.addFigures();
+  return b;
 }

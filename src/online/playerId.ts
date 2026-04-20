@@ -12,7 +12,7 @@ export function getOrCreatePlayerId(): string {
   try {
     const existing = localStorage.getItem(STORAGE_KEY);
     if (existing) return existing;
-    
+
     const id = randomId();
     localStorage.setItem(STORAGE_KEY, id);
 

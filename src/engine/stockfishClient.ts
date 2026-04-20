@@ -140,8 +140,7 @@ export class StockfishClient {
         if (options.depth !== undefined) {
           goParts.push("depth", String(options.depth));
         }
-        const goCommand =
-          goParts.length > 0 ? `go ${goParts.join(" ")}` : "go depth 10";
+        const goCommand = goParts.length > 0 ? `go ${goParts.join(" ")}` : "go depth 10";
         this.post(goCommand);
       });
     };

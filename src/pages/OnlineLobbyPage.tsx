@@ -23,7 +23,7 @@ export default function OnlineLobbyPage() {
   function handleJoin() {
     const code = joinCode.trim().toUpperCase();
     if (!code) return;
-    
+
     navigate(onlineRoomPath(code));
   }
 
@@ -36,7 +36,8 @@ export default function OnlineLobbyPage() {
           </Link>
           <h1 className="mt-2 text-2xl font-bold text-slate-900">Online</h1>
           <p className="mt-1 text-sm text-slate-600">
-            Play a live game with another person. Create a room and share the link, or join with a room code.
+            Play a live game with another person. Create a room and share the link, or join with a
+            room code.
           </p>
         </div>
 

@@ -28,7 +28,7 @@ export class SocketTransport implements IOnlineTransport {
     }
 
     this.playerId = playerId;
-    this.url = (import.meta.env.VITE_ONLINE_SOCKET_URL as string);
+    this.url = import.meta.env.VITE_ONLINE_SOCKET_URL as string;
   }
 
   connect(): void {
@@ -59,7 +59,9 @@ export class SocketTransport implements IOnlineTransport {
     });
 
     this.socket.on("s2c", (msg: ServerToClientMessage) => {
-      this.handlers.forEach((handler) => handler(msg));
+      this.handlers.forEach((handler) => {
+        handler(msg);
+      });
     });
   }
 

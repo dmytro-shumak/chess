@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, type ReactNode } from "react";
+import { type ReactNode, useLayoutEffect, useRef } from "react";
 import { classNames } from "../utils/classNames";
 
 interface GameSidePanelProps {
@@ -76,7 +76,8 @@ function GameSidePanel({ restartDisabled, onRestart, movePlies, footer }: GameSi
                     </td>
                     <td
                       className={classNames("rounded px-1.5 py-1", {
-                        "bg-amber-100/90 text-slate-900 ring-1 ring-amber-200/60": r === highlightRow && !highlightWhite, 
+                        "bg-amber-100/90 text-slate-900 ring-1 ring-amber-200/60":
+                          r === highlightRow && !highlightWhite,
                       })}
                     >
                       {row.black ?? ""}

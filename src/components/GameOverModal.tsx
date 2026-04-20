@@ -9,7 +9,13 @@ interface GameOverModalProps {
   showRematch?: boolean;
 }
 
-function GameOverModal({ open, onOpenChange, copy, onRematch, showRematch = true }: GameOverModalProps) {
+function GameOverModal({
+  open,
+  onOpenChange,
+  copy,
+  onRematch,
+  showRematch = true,
+}: GameOverModalProps) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange} modal>
       <Dialog.Portal>
@@ -33,9 +39,7 @@ function GameOverModal({ open, onOpenChange, copy, onRematch, showRematch = true
               {copy.winnerLabel && (
                 <p className="text-lg font-semibold text-emerald-800">Winner: {copy.winnerLabel}</p>
               )}
-              {!copy.winnerLabel && (
-                <p className="text-lg font-semibold text-slate-800">Draw</p>
-              )}
+              {!copy.winnerLabel && <p className="text-lg font-semibold text-slate-800">Draw</p>}
               <p className="text-base">{copy.resultLine}</p>
               {copy.detailLine && <p className="text-sm text-slate-600">{copy.detailLine}</p>}
             </div>

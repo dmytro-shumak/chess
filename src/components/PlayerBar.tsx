@@ -1,6 +1,6 @@
-import { Player } from "../models/Player";
-import { classNames } from "../utils/classNames";
 import type { CapturedDisplay } from "../chess/capturedFromMove";
+import type { Player } from "../models/Player";
+import { classNames } from "../utils/classNames";
 
 interface PlayerBarProps {
   player: Player;
@@ -32,7 +32,10 @@ function PlayerBar({ player, seconds, active, capturedFigures }: PlayerBarProps)
         <span className="font-medium">Captured:</span>
         {capturedFigures.length > 0 &&
           capturedFigures.map((c) => (
-            <span key={c.key} className="inline-flex items-center gap-1 rounded bg-slate-200 px-1 py-0.5">
+            <span
+              key={c.key}
+              className="inline-flex items-center gap-1 rounded bg-slate-200 px-1 py-0.5"
+            >
               <c.Logo width={16} height={16} />
               {c.label}
             </span>

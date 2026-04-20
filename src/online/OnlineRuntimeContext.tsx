@@ -1,7 +1,7 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from "react";
 import { getOrCreatePlayerId } from "./playerId";
-import { SocketTransport } from "./socketTransport";
 import type { PlayerId } from "./protocol";
+import { SocketTransport } from "./socketTransport";
 
 type OnlineRuntimeValue = {
   playerId: PlayerId;

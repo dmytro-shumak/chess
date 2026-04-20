@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { onlineRoomPath, ROUTES } from "../routes";
 import { useOnlineRuntime } from "../online/OnlineRuntimeContext";
+import { onlineRoomPath, ROUTES } from "../routes";
 
 export default function OnlineLobbyPage() {
   const navigate = useNavigate();
@@ -35,8 +35,9 @@ export default function OnlineLobbyPage() {
           </Link>
           <h1 className="mt-2 text-2xl font-bold text-slate-900">Online</h1>
           <p className="mt-1 text-sm text-slate-600">
-            Real-time play over Socket.IO. Set <code className="rounded bg-slate-100 px-1">VITE_ONLINE_SOCKET_URL</code> to your
-            server URL (default <code className="rounded bg-slate-100 px-1">http://127.0.0.1:3001</code>).
+            Real-time play over Socket.IO. Set{" "}
+            <code className="rounded bg-slate-100 px-1">VITE_ONLINE_SOCKET_URL</code> to your server
+            URL (default <code className="rounded bg-slate-100 px-1">http://127.0.0.1:3001</code>).
           </p>
         </div>
 
@@ -47,7 +48,9 @@ export default function OnlineLobbyPage() {
         )}
 
         {banner && (
-          <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-950">{banner}</p>
+          <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-950">
+            {banner}
+          </p>
         )}
 
         <label className="flex flex-col gap-1 text-sm font-medium text-slate-800">

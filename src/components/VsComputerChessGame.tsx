@@ -1,20 +1,24 @@
-import BoardComponent from "./BoardComponent";
-import type { SquareHighlight } from "../chess/types";
-import GameOverModal from "./GameOverModal";
-import { StockfishClient } from "../engine/stockfishClient";
-import { DEFAULT_ENGINE_PRESET_ID, ENGINE_PRESETS, type EnginePreset } from "../engine/enginePresets";
-import { applyStockfishBestMove } from "../engine/applyStockfishMove";
-import { Chess, WHITE, type Move } from "chess.js";
-import { useState, useEffect, useRef, useCallback } from "react";
-import { Colors } from "../models/Colors";
-import { Player } from "../models/Player";
-import Timer from "./Timer";
-import { GameStatus } from "../models/GameStatus";
-import { getGameOverModalCopy } from "../utils/getGameOverModalCopy";
+import { Chess, type Move, WHITE } from "chess.js";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { activeCheckSquare } from "../chess/activeCheckSquare";
+import type { SquareHighlight } from "../chess/types";
+import { applyStockfishBestMove } from "../engine/applyStockfishMove";
+import {
+  DEFAULT_ENGINE_PRESET_ID,
+  ENGINE_PRESETS,
+  type EnginePreset,
+} from "../engine/enginePresets";
+import { StockfishClient } from "../engine/stockfishClient";
+import { useCapturedPieces } from "../hooks/useCapturedPieces";
 import { useDelayedGameOverModal } from "../hooks/useDelayedGameOverModal";
 import { useGameStatusFromChess } from "../hooks/useGameStatusFromChess";
-import { useCapturedPieces } from "../hooks/useCapturedPieces";
+import { Colors } from "../models/Colors";
+import { GameStatus } from "../models/GameStatus";
+import { Player } from "../models/Player";
+import { getGameOverModalCopy } from "../utils/getGameOverModalCopy";
+import BoardComponent from "./BoardComponent";
+import GameOverModal from "./GameOverModal";
+import Timer from "./Timer";
 
 const PLAYER_WHITE = new Player(Colors.WHITE, "You");
 const PLAYER_BLACK = new Player(Colors.BLACK, "Stockfish");
@@ -27,27 +31,32 @@ export default function VsComputerChessGame() {
   const [boardResetKey, setBoardResetKey] = useState(0);
   const [presetId, setPresetId] = useState<string>(DEFAULT_ENGINE_PRESET_ID);
   const [lastMoveHighlight, setLastMoveHighlight] = useState<SquareHighlight | null>(null);
-  const { capturedByWhite, capturedByBlack, reset: resetCaptures, appendFromMove } = useCapturedPieces();
+  const {
+    capturedByWhite,
+    capturedByBlack,
+    reset: resetCaptures,
+    appendFromMove,
+  } = useCapturedPieces();
   const stockfishRef = useRef<StockfishClient | null>(null);
   const chessRef = useRef(chess);
   const searchGeneration = useRef(0);
 
-  const { gameOverModalReady, gameOverDismissed, setGameOverDismissed } = useDelayedGameOverModal(gameStatus);
+  const { gameOverModalReady, gameOverDismissed, setGameOverDismissed } =
+    useDelayedGameOverModal(gameStatus);
 
   useGameStatusFromChess(chess, setGameStatus, { preserveTimeouts: false });
 
   chessRef.current = chess;
 
-  const preset: EnginePreset =
-    ENGINE_PRESETS.find((p) => p.id === presetId) ?? ENGINE_PRESETS[1];
+  const preset: EnginePreset = ENGINE_PRESETS.find((p) => p.id === presetId) ?? ENGINE_PRESETS[1];
 
-  function initBoard() {
+  const initBoard = useCallback(() => {
     setChess(new Chess());
     setCurrentPlayer(PLAYER_WHITE);
     setMovePlies([]);
     setLastMoveHighlight(null);
     resetCaptures();
-  }
+  }, [resetCaptures]);
 
   const handleBoardMove = useCallback(
     ({ san, move }: { san: string; uci: string; move: Move }) => {
@@ -74,7 +83,7 @@ export default function VsComputerChessGame() {
       client.dispose();
       stockfishRef.current = null;
     };
-  }, []);
+  }, [initBoard]);
 
   function swapPlayer() {
     setCurrentPlayer(chess.turn() === WHITE ? PLAYER_WHITE : PLAYER_BLACK);
@@ -107,7 +116,7 @@ export default function VsComputerChessGame() {
       cancelled = true;
       client.stop();
     };
-  }, [currentPlayer?.color, gameStatus, movePlies.length, preset.movetime, preset.depth, appendFromMove]);
+  }, [currentPlayer?.color, gameStatus, preset, appendFromMove]);
 
   const checkSquare = activeCheckSquare(chess, gameStatus);
   const gameOverCopy = getGameOverModalCopy(gameStatus);

@@ -67,7 +67,11 @@ export function applyServerMessage(
   }
 
   const msgRoom =
-    msg.type === "room_created" || msg.type === "joined" || msg.type === "game_start" || msg.type === "move_applied" || msg.type === "game_over"
+    msg.type === "room_created" ||
+    msg.type === "joined" ||
+    msg.type === "game_start" ||
+    msg.type === "move_applied" ||
+    msg.type === "game_over"
       ? msg.roomId
       : null;
   if (msgRoom && !sameRoom(msgRoom, ctx)) return prev;
@@ -90,10 +94,8 @@ export function applyServerMessage(
     case "game_start": {
       if (!prev?.guestId) return prev;
       if (prev.whitePlayerId && prev.blackPlayerId) return prev;
-      const hostNick =
-        prev.hostId === msg.whitePlayerId ? msg.whiteNick : msg.blackNick;
-      const guestNick =
-        prev.guestId === msg.whitePlayerId ? msg.whiteNick : msg.blackNick;
+      const hostNick = prev.hostId === msg.whitePlayerId ? msg.whiteNick : msg.blackNick;
+      const guestNick = prev.guestId === msg.whitePlayerId ? msg.whiteNick : msg.blackNick;
       return {
         ...prev,
         v: prev.v + 1,

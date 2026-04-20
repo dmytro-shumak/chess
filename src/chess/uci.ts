@@ -8,7 +8,9 @@ export function uciFromParts(from: Square, to: Square, promotion?: PromotionChoi
   return from + to + (promotion ?? "");
 }
 
-export function parseUci(uci: string): { from: Square; to: Square; promotion?: PromotionChoice } | null {
+export function parseUci(
+  uci: string,
+): { from: Square; to: Square; promotion?: PromotionChoice } | null {
   const trimmed = uci.trim().toLowerCase();
   const m = trimmed.match(/^([a-h][1-8])([a-h][1-8])([qrbn])?$/);
   if (!m) return null;

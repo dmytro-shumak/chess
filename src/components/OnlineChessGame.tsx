@@ -1,23 +1,23 @@
+import { Chess } from "chess.js";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Chess } from "chess.js";
+import { activeCheckSquare } from "../chess/activeCheckSquare";
+import { replayMovesFromUci } from "../chess/replayMovesFromUci";
 import type { SquareHighlight } from "../chess/types";
+import { useCapturedPieces } from "../hooks/useCapturedPieces";
+import { useDelayedGameOverModal } from "../hooks/useDelayedGameOverModal";
+import { useGameStatusFromChess } from "../hooks/useGameStatusFromChess";
+import { Colors } from "../models/Colors";
+import { GameStatus } from "../models/GameStatus";
+import { Player } from "../models/Player";
+import { useOnlineRoom } from "../online/OnlineRoomContext";
+import { useOnlineRuntime } from "../online/OnlineRuntimeContext";
+import { myColorInRoom, roomGameStarted } from "../online/roomState";
+import { ROUTES } from "../routes";
+import { getGameOverModalCopy } from "../utils/getGameOverModalCopy";
 import BoardComponent from "./BoardComponent";
 import GameOverModal from "./GameOverModal";
 import Timer from "./Timer";
-import { Colors } from "../models/Colors";
-import { Player } from "../models/Player";
-import { GameStatus } from "../models/GameStatus";
-import { getGameOverModalCopy } from "../utils/getGameOverModalCopy";
-import { replayMovesFromUci } from "../chess/replayMovesFromUci";
-import { activeCheckSquare } from "../chess/activeCheckSquare";
-import { useOnlineRuntime } from "../online/OnlineRuntimeContext";
-import { useOnlineRoom } from "../online/OnlineRoomContext";
-import { myColorInRoom, roomGameStarted } from "../online/roomState";
-import { ROUTES } from "../routes";
-import { useDelayedGameOverModal } from "../hooks/useDelayedGameOverModal";
-import { useGameStatusFromChess } from "../hooks/useGameStatusFromChess";
-import { useCapturedPieces } from "../hooks/useCapturedPieces";
 
 export default function OnlineChessGame() {
   const { playerId, transport } = useOnlineRuntime();
@@ -31,8 +31,14 @@ export default function OnlineChessGame() {
   const [clocksStarted, setClocksStarted] = useState(false);
   const [lastMoveHighlight, setLastMoveHighlight] = useState<SquareHighlight | null>(null);
   const lastSyncedV = useRef(-1);
-  const { capturedByWhite, capturedByBlack, reset: resetCaptures, replaceAll } = useCapturedPieces();
-  const { gameOverModalReady, gameOverDismissed, setGameOverDismissed } = useDelayedGameOverModal(gameStatus);
+  const {
+    capturedByWhite,
+    capturedByBlack,
+    reset: resetCaptures,
+    replaceAll,
+  } = useCapturedPieces();
+  const { gameOverModalReady, gameOverDismissed, setGameOverDismissed } =
+    useDelayedGameOverModal(gameStatus);
 
   useGameStatusFromChess(chess, setGameStatus, { preserveTimeouts: true });
 
@@ -40,15 +46,13 @@ export default function OnlineChessGame() {
 
   const whitePlayer = useMemo(() => {
     if (!room?.whitePlayerId || !room.blackPlayerId) return new Player(Colors.WHITE, "White");
-    const nick =
-      room.whitePlayerId === room.hostId ? room.hostNick : room.guestNick ?? "Guest";
+    const nick = room.whitePlayerId === room.hostId ? room.hostNick : (room.guestNick ?? "Guest");
     return new Player(Colors.WHITE, nick);
   }, [room]);
 
   const blackPlayer = useMemo(() => {
     if (!room?.whitePlayerId || !room.blackPlayerId) return new Player(Colors.BLACK, "Black");
-    const nick =
-      room.blackPlayerId === room.hostId ? room.hostNick : room.guestNick ?? "Guest";
+    const nick = room.blackPlayerId === room.hostId ? room.hostNick : (room.guestNick ?? "Guest");
     return new Player(Colors.BLACK, nick);
   }, [room]);
 
@@ -68,7 +72,7 @@ export default function OnlineChessGame() {
     if (room.moves.length > 0) {
       setClocksStarted(true);
     }
-  }, [room?.v, room?.moves, whitePlayer, blackPlayer, replaceAll]);
+  }, [room, whitePlayer, blackPlayer, replaceAll]);
 
   const handleOutOfTime = useCallback((loser: Colors) => {
     setGameStatus(loser === Colors.WHITE ? GameStatus.TIMEOUT_WHITE : GameStatus.TIMEOUT_BLACK);
@@ -149,7 +153,9 @@ export default function OnlineChessGame() {
         initialClockSeconds={room?.timeControlSeconds}
         lockRestart
         sidePanelFooter={
-          <p className="text-center text-xs text-slate-600">Online game via Socket.IO (see docs/online-protocol.md).</p>
+          <p className="text-center text-xs text-slate-600">
+            Online game via Socket.IO (see docs/online-protocol.md).
+          </p>
         }
       >
         <BoardComponent

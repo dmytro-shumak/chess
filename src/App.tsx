@@ -1,13 +1,13 @@
 import "./App.css";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
+import ComputerGamePage from "./pages/ComputerGamePage";
 import HomePage from "./pages/HomePage";
 import LocalGamePage from "./pages/LocalGamePage";
-import ComputerGamePage from "./pages/ComputerGamePage";
 import OnlineLayout from "./pages/OnlineLayout";
-import OnlineRoomLayout from "./pages/OnlineRoomLayout";
 import OnlineLobbyPage from "./pages/OnlineLobbyPage";
-import OnlineRoomPage from "./pages/OnlineRoomPage";
 import OnlinePlayPage from "./pages/OnlinePlayPage";
+import OnlineRoomLayout from "./pages/OnlineRoomLayout";
+import OnlineRoomPage from "./pages/OnlineRoomPage";
 import { ROUTES } from "./routes";
 
 export default function App() {

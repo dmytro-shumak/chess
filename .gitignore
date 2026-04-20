@@ -10,6 +10,7 @@
 
 # production
 /build
+/dist
 
 # copied from node_modules/stockfish on each Vite start
 /public/stockfish

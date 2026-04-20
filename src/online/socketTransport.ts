@@ -57,7 +57,9 @@ export class SocketTransport implements IOnlineTransport {
     });
 
     this.socket.on("s2c", (msg: ServerToClientMessage) => {
-      this.handlers.forEach((h) => h(msg));
+      this.handlers.forEach((h) => {
+        h(msg);
+      });
     });
   }
 
@@ -144,7 +146,9 @@ export class SocketTransport implements IOnlineTransport {
   }
 
   private notifyConnection(connected: boolean): void {
-    this.connectionHandlers.forEach((h) => h(connected));
+    this.connectionHandlers.forEach((h) => {
+      h(connected);
+    });
   }
 
   private emitC2s(msg: ClientToServerMessage): void {
@@ -158,7 +162,8 @@ export class SocketTransport implements IOnlineTransport {
   private flushOutbox(): void {
     if (!this.socket?.connected) return;
     while (this.outbox.length > 0) {
-      const msg = this.outbox.shift()!;
+      const msg = this.outbox.shift();
+      if (msg === undefined) break;
       this.socket.emit("c2s", msg);
     }
   }

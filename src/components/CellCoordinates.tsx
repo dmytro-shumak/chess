@@ -1,7 +1,6 @@
 import { classNames } from "../utils/classNames";
 
-const labelBase =
-  "pointer-events-none absolute z-10 select-none text-sm font-bold leading-none";
+const labelBase = "pointer-events-none absolute z-10 select-none text-sm font-bold leading-none";
 
 interface CellCoordinatesProps {
   rankLabel: string | null;
@@ -18,7 +17,10 @@ function CellCoordinates({ rankLabel, fileLabel, labelTextClassName }: CellCoord
         </span>
       )}
       {fileLabel && (
-        <span className={classNames(labelBase, "bottom-0.5 right-0.5", labelTextClassName)} aria-hidden>
+        <span
+          className={classNames(labelBase, "bottom-0.5 right-0.5", labelTextClassName)}
+          aria-hidden
+        >
           {fileLabel}
         </span>
       )}

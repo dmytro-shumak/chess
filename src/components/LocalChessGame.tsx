@@ -1,16 +1,16 @@
-import BoardComponent from "./BoardComponent";
-import GameOverModal from "./GameOverModal";
-import { Chess, WHITE, type Move } from "chess.js";
-import { useState, useCallback } from "react";
-import { Colors } from "../models/Colors";
-import { Player } from "../models/Player";
-import Timer from "./Timer";
-import { GameStatus } from "../models/GameStatus";
-import { getGameOverModalCopy } from "../utils/getGameOverModalCopy";
+import { Chess, type Move, WHITE } from "chess.js";
+import { useCallback, useState } from "react";
 import { activeCheckSquare } from "../chess/activeCheckSquare";
+import { useCapturedPieces } from "../hooks/useCapturedPieces";
 import { useDelayedGameOverModal } from "../hooks/useDelayedGameOverModal";
 import { useGameStatusFromChess } from "../hooks/useGameStatusFromChess";
-import { useCapturedPieces } from "../hooks/useCapturedPieces";
+import { Colors } from "../models/Colors";
+import { GameStatus } from "../models/GameStatus";
+import { Player } from "../models/Player";
+import { getGameOverModalCopy } from "../utils/getGameOverModalCopy";
+import BoardComponent from "./BoardComponent";
+import GameOverModal from "./GameOverModal";
+import Timer from "./Timer";
 
 const PLAYER_WHITE = new Player(Colors.WHITE, "White");
 const PLAYER_BLACK = new Player(Colors.BLACK, "Black");
@@ -22,8 +22,14 @@ export default function LocalChessGame() {
   const [movePlies, setMovePlies] = useState<string[]>([]);
   const [boardResetKey, setBoardResetKey] = useState(0);
   const [clocksStarted, setClocksStarted] = useState(false);
-  const { capturedByWhite, capturedByBlack, reset: resetCaptures, appendFromMove } = useCapturedPieces();
-  const { gameOverModalReady, gameOverDismissed, setGameOverDismissed } = useDelayedGameOverModal(gameStatus);
+  const {
+    capturedByWhite,
+    capturedByBlack,
+    reset: resetCaptures,
+    appendFromMove,
+  } = useCapturedPieces();
+  const { gameOverModalReady, gameOverDismissed, setGameOverDismissed } =
+    useDelayedGameOverModal(gameStatus);
 
   useGameStatusFromChess(chess, setGameStatus, { preserveTimeouts: true });
 

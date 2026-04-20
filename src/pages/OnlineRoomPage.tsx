@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { onlinePlayPath, ROUTES } from "../routes";
-import { useOnlineRuntime } from "../online/OnlineRuntimeContext";
 import { useOnlineRoom } from "../online/OnlineRoomContext";
+import { useOnlineRuntime } from "../online/OnlineRuntimeContext";
 import { isRoomMember, roomGameStarted } from "../online/roomState";
+import { onlinePlayPath, ROUTES } from "../routes";
 
 export default function OnlineRoomPage() {
   const navigate = useNavigate();
@@ -77,7 +77,9 @@ export default function OnlineRoomPage() {
       </div>
 
       {banner && (
-        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">{banner}</p>
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">
+          {banner}
+        </p>
       )}
 
       {!member && (

@@ -17,14 +17,12 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",
-    "eject": "react-scripts eject",
-    "typecheck": "tsc --noEmit"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "typecheck": "tsc --noEmit",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "format": "biome format --write .",
+    "check": "biome check .",
+    "check:ci": "biome ci ."
   },
   "browserslist": {
     "production": [
@@ -39,6 +37,7 @@
     ]
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.4.12",
     "@tailwindcss/postcss": "^4.2.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

@@ -1,8 +1,8 @@
 import { Chess, type Move } from "chess.js";
-import type { StockfishClient } from "./stockfishClient";
-import type { EnginePreset } from "./enginePresets";
-import { parseUci } from "../chess/uci";
 import type { SquareHighlight } from "../chess/types";
+import { parseUci } from "../chess/uci";
+import type { EnginePreset } from "./enginePresets";
+import type { StockfishClient } from "./stockfishClient";
 
 export type StockfishMoveResult = {
   nextFen: string;

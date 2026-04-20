@@ -1,27 +1,27 @@
 import {
-  Chess,
-  BLACK,
   BISHOP,
+  BLACK,
+  Chess,
+  type Color,
   KNIGHT,
+  type Move,
   QUEEN,
   ROOK,
-  WHITE,
-  type Color,
-  type Move,
   type Square,
+  WHITE,
 } from "chess.js";
 import { useMemo, useState } from "react";
-import SquareCell from "./SquareCell";
-import PromotionModal from "./PromotionModal";
-import { Player } from "../models/Player";
-import { GameStatus } from "../models/GameStatus";
-import { Colors } from "../models/Colors";
-import { squaresInDisplayOrder } from "../chess/squares";
 import { pieceLogo } from "../chess/pieceGlyphs";
-import { uciFromParts } from "../chess/uci";
-import type { SquareHighlight } from "../chess/types";
-import { squareFileAndRank } from "../chess/squareCoords";
 import type { PromotionChoice } from "../chess/promotion";
+import { squareFileAndRank } from "../chess/squareCoords";
+import { squaresInDisplayOrder } from "../chess/squares";
+import type { SquareHighlight } from "../chess/types";
+import { uciFromParts } from "../chess/uci";
+import { Colors } from "../models/Colors";
+import { GameStatus } from "../models/GameStatus";
+import type { Player } from "../models/Player";
+import PromotionModal from "./PromotionModal";
+import SquareCell from "./SquareCell";
 
 export type { SquareHighlight } from "../chess/types";
 
@@ -73,7 +73,8 @@ function BoardComponent({
   }, [turnPlayer]);
 
   const legalTargets = useMemo(() => {
-    if (!selectedSquare || inputLocked || gameStatus !== GameStatus.ACTIVE) return new Set<Square>();
+    if (!selectedSquare || inputLocked || gameStatus !== GameStatus.ACTIVE)
+      return new Set<Square>();
     if (turnColor !== null && chess.turn() !== turnColor) return new Set<Square>();
     const piece = chess.get(selectedSquare);
     if (!piece || piece.color !== chess.turn()) return new Set<Square>();
@@ -111,7 +112,9 @@ function BoardComponent({
     if (!selectedSquare || inputLocked || gameStatus !== GameStatus.ACTIVE) return;
     if (turnColor !== null && chess.turn() !== turnColor) return;
 
-    const candidates = chess.moves({ square: selectedSquare, verbose: true }).filter((m) => m.to === toSq);
+    const candidates = chess
+      .moves({ square: selectedSquare, verbose: true })
+      .filter((m) => m.to === toSq);
     if (candidates.length === 0) return;
 
     const promoOptions: PromotionChoice[] = [];

@@ -1,6 +1,6 @@
+import type { SvgComponent } from "../types/svg";
 import { classNames } from "../utils/classNames";
 import CellCoordinates from "./CellCoordinates";
-import type { SvgComponent } from "../types/svg";
 
 export interface SquareCellProps {
   fileIndex: number;
@@ -30,8 +30,7 @@ function SquareCell({
   const lastMoveHighlight = lastMoveRole !== null;
   const rankLabel = fileIndex === 0 ? String(rankNumber) : null;
   const fileLabel = rankNumber === 1 ? String.fromCharCode(97 + fileIndex) : null;
-  const labelTextClassName =
-    isLightSquare === false ? "text-chess-light" : "text-chess-dark";
+  const labelTextClassName = isLightSquare === false ? "text-chess-light" : "text-chess-dark";
 
   return (
     <div
@@ -50,7 +49,11 @@ function SquareCell({
       {lastMoveHighlight && !selected && (
         <span className="pointer-events-none absolute inset-0 z-0 bg-amber-300/50" aria-hidden />
       )}
-      <CellCoordinates rankLabel={rankLabel} fileLabel={fileLabel} labelTextClassName={labelTextClassName} />
+      <CellCoordinates
+        rankLabel={rankLabel}
+        fileLabel={fileLabel}
+        labelTextClassName={labelTextClassName}
+      />
       {showMoveHint && (
         <span
           className={classNames(

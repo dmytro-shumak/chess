@@ -1,8 +1,5 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { BISHOP, KNIGHT, QUEEN, ROOK } from "chess.js";
-import { Colors } from "../models/Colors";
-import type { SvgComponent } from "../types/svg";
-import type { PromotionChoice } from "../chess/promotion";
 import bishopDark from "../assets/bishop-dark.svg?react";
 import bishopLight from "../assets/bishop-white.svg?react";
 import knightDark from "../assets/knight-dark.svg?react";
@@ -11,15 +8,19 @@ import queenDark from "../assets/queen-dark.svg?react";
 import queenLight from "../assets/queen-white.svg?react";
 import rookDark from "../assets/rook-dark.svg?react";
 import rookLight from "../assets/rook-white.svg?react";
+import type { PromotionChoice } from "../chess/promotion";
+import { Colors } from "../models/Colors";
+import type { SvgComponent } from "../types/svg";
 
 export type { PromotionChoice } from "../chess/promotion";
 
-const OPTIONS: { name: PromotionChoice; label: string; dark: SvgComponent; light: SvgComponent }[] = [
-  { name: QUEEN, label: "Queen", dark: queenDark, light: queenLight },
-  { name: ROOK, label: "Rook", dark: rookDark, light: rookLight },
-  { name: BISHOP, label: "Bishop", dark: bishopDark, light: bishopLight },
-  { name: KNIGHT, label: "Knight", dark: knightDark, light: knightLight },
-];
+const OPTIONS: { name: PromotionChoice; label: string; dark: SvgComponent; light: SvgComponent }[] =
+  [
+    { name: QUEEN, label: "Queen", dark: queenDark, light: queenLight },
+    { name: ROOK, label: "Rook", dark: rookDark, light: rookLight },
+    { name: BISHOP, label: "Bishop", dark: bishopDark, light: bishopLight },
+    { name: KNIGHT, label: "Knight", dark: knightDark, light: knightLight },
+  ];
 
 interface PromotionModalProps {
   open: boolean;

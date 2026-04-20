@@ -10,7 +10,8 @@ export function capturedDisplayFromMove(move: Move, displayKey: string): Capture
   if (!move.isCapture() && !move.isEnPassant()) return null;
   const mover = move.color;
   const capColor = mover === WHITE ? BLACK : WHITE;
-  const capType = move.isEnPassant() ? PAWN : move.captured!;
+  const capType = move.isEnPassant() ? PAWN : move.captured;
+  if (!capType) return null;
   const Logo = pieceLogo(capType, capColor);
   const label = `${capColor === WHITE ? "W" : "B"} ${capType.toUpperCase()}`;
   return { key: displayKey, Logo, label };

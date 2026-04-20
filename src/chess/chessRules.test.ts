@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
 import { Chess, PAWN, QUEEN } from "chess.js";
-import { parseUci } from "./uci";
+import { describe, expect, it } from "vitest";
 import { replayMovesFromUci } from "./replayMovesFromUci";
+import { parseUci } from "./uci";
 
 describe("parseUci", () => {
   it("parses quiet move", () => {

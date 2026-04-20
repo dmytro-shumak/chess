@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
+import { type Dispatch, type SetStateAction, useEffect, useRef, useState } from "react";
 import { GameStatus } from "../models/GameStatus";
 
 export const DEFAULT_GAME_OVER_MODAL_DELAY_MS = 500;

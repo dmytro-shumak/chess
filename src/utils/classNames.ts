@@ -1,9 +1,4 @@
-type ClassValue =
-  | string
-  | false
-  | undefined
-  | null
-  | Record<string, boolean | undefined | null>;
+type ClassValue = string | false | undefined | null | Record<string, boolean | undefined | null>;
 
 export function classNames(...classes: ClassValue[]): string {
   const out: string[] = [];

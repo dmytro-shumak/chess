@@ -24,8 +24,7 @@ export function getGameOverModalCopy(status: GameStatus): GameOverModalCopy | nu
       return {
         winnerLabel: null,
         resultLine: "Draw — stalemate.",
-        detailLine:
-          "The side to move has no legal moves, and the king is not in check.",
+        detailLine: "The side to move has no legal moves, and the king is not in check.",
       };
     case GameStatus.THREEFOLD_REPETITION:
       return {

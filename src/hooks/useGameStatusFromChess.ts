@@ -1,7 +1,7 @@
 import type { Chess } from "chess.js";
-import { useEffect, type Dispatch, type SetStateAction } from "react";
-import { GameStatus } from "../models/GameStatus";
+import { type Dispatch, type SetStateAction, useEffect } from "react";
 import { gameStatusFromChess } from "../chess/gameStatusFromChess";
+import { GameStatus } from "../models/GameStatus";
 
 export function useGameStatusFromChess(
   chess: Chess,

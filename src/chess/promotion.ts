@@ -1,3 +1,1 @@
-import { BISHOP, KNIGHT, QUEEN, ROOK } from "chess.js";
-
-export type PromotionChoice = typeof QUEEN | typeof ROOK | typeof BISHOP | typeof KNIGHT;
+export type PromotionChoice = "q" | "r" | "b" | "n";

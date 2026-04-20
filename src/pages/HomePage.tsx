@@ -5,8 +5,12 @@ export default function HomePage() {
   return (
     <div className="box-border flex min-h-screen w-full flex-col items-center justify-center p-4">
       <div className="flex w-full max-w-md flex-col items-center gap-4">
-        <h1 className="text-center text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Chess</h1>
-        <p className="mb-2 text-center text-sm text-slate-600 sm:text-base">Choose how you want to play</p>
+        <h1 className="text-center text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+          Chess
+        </h1>
+        <p className="mb-2 text-center text-sm text-slate-600 sm:text-base">
+          Choose how you want to play
+        </p>
         <div className="flex w-full flex-col gap-3">
           <Link
             to={ROUTES.local}

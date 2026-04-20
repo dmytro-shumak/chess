@@ -1,8 +1,8 @@
 import { Chess, WHITE } from "chess.js";
-import { capturedDisplayFromMove } from "./capturedFromMove";
 import type { CapturedDisplay } from "./capturedFromMove";
-import { parseUci } from "./uci";
+import { capturedDisplayFromMove } from "./capturedFromMove";
 import type { SquareHighlight } from "./types";
+import { parseUci } from "./uci";
 
 export function replayMovesFromUci(
   moves: readonly { uci: string; san: string }[],
@@ -20,7 +20,8 @@ export function replayMovesFromUci(
   let lastHl: SquareHighlight | null = null;
 
   for (let i = 0; i < moves.length; i++) {
-    const mv = moves[i]!;
+    const mv = moves[i];
+    if (!mv) continue;
     const p = parseUci(mv.uci);
     if (!p) continue;
     const m = c.move({ from: p.from, to: p.to, promotion: p.promotion });

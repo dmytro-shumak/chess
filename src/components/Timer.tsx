@@ -1,10 +1,10 @@
-import { Player } from "../models/Player";
-import { useState, useRef, useEffect, type ReactNode } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
+import type { CapturedDisplay } from "../chess/capturedFromMove";
 import { Colors } from "../models/Colors";
 import { GameStatus } from "../models/GameStatus";
-import type { CapturedDisplay } from "../chess/capturedFromMove";
-import PlayerBar from "./PlayerBar";
+import type { Player } from "../models/Player";
 import GameSidePanel from "./GameSidePanel";
+import PlayerBar from "./PlayerBar";
 
 interface TimerProps {
   children: ReactNode;
@@ -84,9 +84,13 @@ function Timer({
     if (timer.current) {
       clearInterval(timer.current);
     }
-    const callback =
-      currentPlayer?.color === Colors.WHITE ? decrementWhiteTimer : decrementBlackTimer;
-    timer.current = setInterval(callback, 1000);
+    timer.current = setInterval(() => {
+      if (currentPlayer?.color === Colors.WHITE) {
+        setWhiteTime((prev) => (prev <= 0 ? 0 : prev - 1));
+      } else {
+        setBlackTime((prev) => (prev <= 0 ? 0 : prev - 1));
+      }
+    }, 1000);
 
     return () => {
       if (timer.current) {
@@ -96,14 +100,6 @@ function Timer({
     };
   }, [clocked, currentPlayer, gameStatus, clocksStarted]);
 
-  function decrementBlackTimer() {
-    setBlackTime((prev) => (prev <= 0 ? 0 : prev - 1));
-  }
-
-  function decrementWhiteTimer() {
-    setWhiteTime((prev) => (prev <= 0 ? 0 : prev - 1));
-  }
-
   function handleRestart() {
     if (clocked) {
       setWhiteTime(startSeconds);
@@ -112,10 +108,8 @@ function Timer({
     restart();
   }
 
-  const blackActive =
-    gameStatus === GameStatus.ACTIVE && currentPlayer?.color === Colors.BLACK;
-  const whiteActive =
-    gameStatus === GameStatus.ACTIVE && currentPlayer?.color === Colors.WHITE;
+  const blackActive = gameStatus === GameStatus.ACTIVE && currentPlayer?.color === Colors.BLACK;
+  const whiteActive = gameStatus === GameStatus.ACTIVE && currentPlayer?.color === Colors.WHITE;
 
   const topPlayer = invertPlayerBars ? whitePlayer : blackPlayer;
   const bottomPlayer = invertPlayerBars ? blackPlayer : whitePlayer;

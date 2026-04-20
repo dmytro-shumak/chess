@@ -1,6 +1,6 @@
+import { type Move, WHITE } from "chess.js";
 import { useCallback, useRef, useState } from "react";
-import { WHITE, type Move } from "chess.js";
-import { capturedDisplayFromMove, type CapturedDisplay } from "../chess/capturedFromMove";
+import { type CapturedDisplay, capturedDisplayFromMove } from "../chess/capturedFromMove";
 
 export function useCapturedPieces(): {
   capturedByWhite: CapturedDisplay[];

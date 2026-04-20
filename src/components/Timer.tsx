@@ -2,6 +2,7 @@ import { Player } from "../models/Player";
 import { useState, useRef, useEffect, type ReactNode } from "react";
 import { Colors } from "../models/Colors";
 import { GameStatus } from "../models/GameStatus";
+import type { CapturedDisplay } from "../chess/capturedFromMove";
 import PlayerBar from "./PlayerBar";
 import GameSidePanel from "./GameSidePanel";
 
@@ -13,8 +14,8 @@ interface TimerProps {
   restart: () => void;
   clocksStarted: boolean;
   gameStatus: GameStatus;
-  capturedByWhite: import("../models/figures/Figure").Figure[];
-  capturedByBlack: import("../models/figures/Figure").Figure[];
+  capturedByWhite: CapturedDisplay[];
+  capturedByBlack: CapturedDisplay[];
   onOutOfTime: (loser: Colors) => void;
   movePlies: string[];
   /** When false, no clocks or timeout logic (e.g. vs computer). */

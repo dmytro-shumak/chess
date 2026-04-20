@@ -1,40 +1,54 @@
-import { Cell } from "../models/Cell";
 import { Colors } from "../models/Colors";
-import CellCoordinates from "./CellCoordinates";
 import { classNames } from "../utils/classNames";
+import CellCoordinates from "./CellCoordinates";
+import type { SvgComponent } from "../types/svg";
 
-interface CellProps {
-  cell: Cell;
+export interface SquareCellProps {
+  square: string;
+  fileIndex: number;
+  rankNumber: number;
+  isLightSquare: boolean;
+  Logo: SvgComponent | null;
   selected: boolean;
   kingInCheck: boolean;
   lastMoveRole: "from" | "to" | null;
-  selectFigure: (cell: Cell) => void;
+  showMoveHint: boolean;
+  isCaptureHint: boolean;
+  onClick: () => void;
 }
 
-function CellComponent({ cell, selected, kingInCheck, lastMoveRole, selectFigure }: CellProps) {
-  const showMoveHint = cell.available && !selected;
-  const isCaptureHint = showMoveHint && Boolean(cell.figure);
-  const Logo = cell.figure?.Logo;
+function SquareCell({
+  square,
+  fileIndex,
+  rankNumber,
+  isLightSquare,
+  Logo,
+  selected,
+  kingInCheck,
+  lastMoveRole,
+  showMoveHint,
+  isCaptureHint,
+  onClick,
+}: SquareCellProps) {
   const lastMoveHighlight = lastMoveRole !== null;
-
-  const rankLabel = cell.x === 0 ? String(8 - cell.y) : null;
-  const fileLabel = cell.y === 7 ? String.fromCharCode(97 + cell.x) : null;
+  const rankLabel = fileIndex === 0 ? String(rankNumber) : null;
+  const fileLabel = rankNumber === 1 ? String.fromCharCode(97 + fileIndex) : null;
   const labelTextClassName =
-    cell.color === Colors.BLACK ? "text-chess-light" : "text-chess-dark";
+    isLightSquare === false ? "text-chess-light" : "text-chess-dark";
 
   return (
     <div
       className={classNames(
         "relative flex h-20 w-20 cursor-pointer items-center justify-center border border-black/10",
         {
-          "bg-chess-light": cell.color === Colors.WHITE && !selected,
-          "bg-chess-dark": cell.color === Colors.BLACK && !selected,
+          "bg-chess-light": isLightSquare && !selected,
+          "bg-chess-dark": !isLightSquare && !selected,
           "bg-chess-selected": selected,
           "z-2 ring-2 ring-inset ring-red-600/90": kingInCheck,
           "ring-2 ring-inset ring-amber-400/70": lastMoveHighlight && selected,
         },
       )}
-      onClick={() => selectFigure(cell)}
+      onClick={onClick}
     >
       {lastMoveHighlight && !selected && (
         <span className="pointer-events-none absolute inset-0 z-0 bg-amber-300/50" aria-hidden />
@@ -54,4 +68,4 @@ function CellComponent({ cell, selected, kingInCheck, lastMoveRole, selectFigure
   );
 }
 
-export default CellComponent;
+export default SquareCell;

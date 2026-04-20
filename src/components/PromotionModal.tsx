@@ -1,6 +1,5 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { Colors } from "../models/Colors";
-import { FigureNames } from "../models/figures/Figure";
 import type { SvgComponent } from "../types/svg";
 import bishopDark from "../assets/bishop-dark.svg?react";
 import bishopLight from "../assets/bishop-white.svg?react";
@@ -11,17 +10,13 @@ import queenLight from "../assets/queen-white.svg?react";
 import rookDark from "../assets/rook-dark.svg?react";
 import rookLight from "../assets/rook-white.svg?react";
 
-export type PromotionChoice =
-  | FigureNames.QUEEN
-  | FigureNames.ROOK
-  | FigureNames.BISHOP
-  | FigureNames.KNIGHT;
+export type PromotionChoice = "q" | "r" | "b" | "n";
 
 const OPTIONS: { name: PromotionChoice; label: string; dark: SvgComponent; light: SvgComponent }[] = [
-  { name: FigureNames.QUEEN, label: "Queen", dark: queenDark, light: queenLight },
-  { name: FigureNames.ROOK, label: "Rook", dark: rookDark, light: rookLight },
-  { name: FigureNames.BISHOP, label: "Bishop", dark: bishopDark, light: bishopLight },
-  { name: FigureNames.KNIGHT, label: "Knight", dark: knightDark, light: knightLight },
+  { name: "q", label: "Queen", dark: queenDark, light: queenLight },
+  { name: "r", label: "Rook", dark: rookDark, light: rookLight },
+  { name: "b", label: "Bishop", dark: bishopDark, light: bishopLight },
+  { name: "n", label: "Knight", dark: knightDark, light: knightLight },
 ];
 
 interface PromotionModalProps {

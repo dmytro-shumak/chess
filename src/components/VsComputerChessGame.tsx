@@ -1,65 +1,67 @@
-import BoardComponent from "./BoardComponent";
+import BoardComponent, { type SquareHighlight } from "./BoardComponent";
 import GameOverModal from "./GameOverModal";
 import { StockfishClient } from "../engine/stockfishClient";
 import { DEFAULT_ENGINE_PRESET_ID, ENGINE_PRESETS, type EnginePreset } from "../engine/enginePresets";
-import { Board, newBoardWithStartingPosition } from "../models/Board";
+import { Chess, type Move } from "chess.js";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Colors } from "../models/Colors";
 import { Player } from "../models/Player";
 import Timer from "./Timer";
 import { GameStatus } from "../models/GameStatus";
 import { getGameOverModalCopy } from "../utils/getGameOverModalCopy";
-import { buildRepetitionKey } from "../utils/positionRepetition";
-import { outcomeAfterMove } from "../game/outcomeAfterMove";
-import { boardToFen, parseUciToBoardSquares, type BoardMoveSquares } from "../utils/fen";
-import { sanForAppliedUci } from "../utils/san";
+import { gameStatusFromChess } from "../chess/gameStatusFromChess";
+import { kingSquareForColor } from "../chess/kingSquare";
+import { parseUci } from "../chess/uci";
+import {
+  capturedDisplayFromMove,
+  resetCapturedDisplayKeyCounter,
+  type CapturedDisplay,
+} from "../chess/capturedFromMove";
 
 const PLAYER_WHITE = new Player(Colors.WHITE, "You");
 const PLAYER_BLACK = new Player(Colors.BLACK, "Stockfish");
 
 const GAME_OVER_MODAL_DELAY_MS = 500;
 
-function fullMoveNumberFromPlyCount(plies: number): number {
-  return 1 + Math.floor(plies / 2);
-}
-
 export default function VsComputerChessGame() {
-  const [board, setBoard] = useState(() => newBoardWithStartingPosition());
-  const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
+  const [chess, setChess] = useState(() => new Chess());
+  const [currentPlayer, setCurrentPlayer] = useState<Player | null>(PLAYER_WHITE);
   const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.ACTIVE);
   const [movePlies, setMovePlies] = useState<string[]>([]);
   const [boardResetKey, setBoardResetKey] = useState(0);
   const [gameOverDismissed, setGameOverDismissed] = useState(false);
   const [gameOverModalReady, setGameOverModalReady] = useState(false);
   const [presetId, setPresetId] = useState<string>(DEFAULT_ENGINE_PRESET_ID);
-  const [lastMoveHighlight, setLastMoveHighlight] = useState<BoardMoveSquares | null>(null);
-  const repetitionCounts = useRef(new Map<string, number>());
+  const [lastMoveHighlight, setLastMoveHighlight] = useState<SquareHighlight | null>(null);
+  const [capturedByWhite, setCapturedByWhite] = useState<CapturedDisplay[]>([]);
+  const [capturedByBlack, setCapturedByBlack] = useState<CapturedDisplay[]>([]);
   const gameOverModalDelayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const stockfishRef = useRef<StockfishClient | null>(null);
-  const boardRef = useRef(board);
+  const chessRef = useRef(chess);
   const searchGeneration = useRef(0);
 
-  boardRef.current = board;
+  chessRef.current = chess;
 
   const preset: EnginePreset =
     ENGINE_PRESETS.find((p) => p.id === presetId) ?? ENGINE_PRESETS[1];
 
-  function seedStartingPosition(b: Board) {
-    repetitionCounts.current.clear();
-    repetitionCounts.current.set(buildRepetitionKey(b, Colors.WHITE), 1);
-  }
-
   function initBoard() {
-    const newBoard = newBoardWithStartingPosition();
-    setBoard(newBoard);
+    resetCapturedDisplayKeyCounter();
+    setChess(new Chess());
     setCurrentPlayer(PLAYER_WHITE);
     setMovePlies([]);
     setLastMoveHighlight(null);
-    seedStartingPosition(newBoard);
+    setCapturedByWhite([]);
+    setCapturedByBlack([]);
   }
 
-  const handleMovePlayed = useCallback((san: string) => {
+  const handleBoardMove = useCallback(({ san, move }: { san: string; uci: string; move: Move }) => {
     setMovePlies((prev) => [...prev, san]);
+    const cap = capturedDisplayFromMove(move);
+    if (cap) {
+      if (move.color === "w") setCapturedByWhite((prev) => [...prev, cap]);
+      else setCapturedByBlack((prev) => [...prev, cap]);
+    }
   }, []);
 
   function restart() {
@@ -113,13 +115,12 @@ export default function VsComputerChessGame() {
     };
   }, [gameStatus]);
 
+  useEffect(() => {
+    setGameStatus(() => gameStatusFromChess(chess));
+  }, [chess]);
+
   function swapPlayer() {
-    const nextPlayer = currentPlayer?.color === Colors.WHITE ? PLAYER_BLACK : PLAYER_WHITE;
-    setCurrentPlayer(nextPlayer);
-    const status = outcomeAfterMove(board, nextPlayer.color, repetitionCounts.current);
-    if (status !== GameStatus.ACTIVE) {
-      setGameStatus(status);
-    }
+    setCurrentPlayer(chess.turn() === "w" ? PLAYER_WHITE : PLAYER_BLACK);
   }
 
   useEffect(() => {
@@ -132,22 +133,23 @@ export default function VsComputerChessGame() {
 
     void (async () => {
       try {
-        const b = boardRef.current;
-        const fen = boardToFen(b, Colors.BLACK, fullMoveNumberFromPlyCount(movePlies.length));
+        const base = chessRef.current;
+        const fen = base.fen();
         const uci = await client.goBestMove(fen, { movetime: preset.movetime, depth: preset.depth });
         if (cancelled || gen !== searchGeneration.current) return;
-        const squares = parseUciToBoardSquares(uci);
-        const sanBlack = sanForAppliedUci(b, uci, Colors.BLACK);
-        if (!sanBlack) {
-          return;
-        }
-        if (squares) setLastMoveHighlight(squares);
-        setBoard(b.getCopyBoard());
-        setMovePlies((prev) => [...prev, sanBlack]);
+        const p = parseUci(uci);
+        if (!p) return;
+        const next = new Chess(base.fen());
+        const m = next.move({ from: p.from, to: p.to, promotion: p.promotion });
+        if (!m) return;
+        setChess(() => new Chess(next.fen()));
+        setLastMoveHighlight({ from: p.from, to: p.to });
+        setMovePlies((prev) => [...prev, m.san]);
         setCurrentPlayer(PLAYER_WHITE);
-        const nextStatus = outcomeAfterMove(b, Colors.WHITE, repetitionCounts.current);
-        if (nextStatus !== GameStatus.ACTIVE) {
-          setGameStatus(nextStatus);
+        const cap = capturedDisplayFromMove(m);
+        if (cap) {
+          if (m.color === "w") setCapturedByWhite((prev) => [...prev, cap]);
+          else setCapturedByBlack((prev) => [...prev, cap]);
         }
       } catch (error) {
         console.error("Error searching for best move:", error);
@@ -160,10 +162,9 @@ export default function VsComputerChessGame() {
     };
   }, [currentPlayer?.color, gameStatus, movePlies.length, preset.movetime, preset.depth]);
 
-  const isCheck = currentPlayer ? board.isKingInCheck(currentPlayer.color) : false;
-  const checkKingCell =
-    gameStatus === GameStatus.ACTIVE && isCheck && currentPlayer
-      ? board.getKingCell(currentPlayer.color)
+  const checkSquare =
+    gameStatus === GameStatus.ACTIVE && chess.inCheck()
+      ? kingSquareForColor(chess, chess.turn())
       : null;
 
   const gameOverCopy = getGameOverModalCopy(gameStatus);
@@ -189,8 +190,8 @@ export default function VsComputerChessGame() {
         clocksStarted={false}
         gameStatus={gameStatus}
         onOutOfTime={() => {}}
-        capturedByWhite={board.lostBlackFigures}
-        capturedByBlack={board.lostWhiteFigures}
+        capturedByWhite={capturedByWhite}
+        capturedByBlack={capturedByBlack}
         movePlies={movePlies}
         clocked={false}
         sidePanelFooter={
@@ -215,13 +216,13 @@ export default function VsComputerChessGame() {
       >
         <BoardComponent
           key={boardResetKey}
-          board={board}
-          setBoard={setBoard}
-          currentPlayer={currentPlayer}
+          chess={chess}
+          setChess={setChess}
+          turnPlayer={currentPlayer}
           swapPlayer={swapPlayer}
           gameStatus={gameStatus}
-          checkKingCell={checkKingCell}
-          onMovePlayed={handleMovePlayed}
+          checkSquare={checkSquare}
+          onMove={handleBoardMove}
           inputLocked={inputLocked}
           lastMoveHighlight={lastMoveHighlight}
           onLastMoveHighlight={setLastMoveHighlight}

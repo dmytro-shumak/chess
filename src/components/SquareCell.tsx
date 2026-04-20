@@ -1,35 +1,50 @@
-import type { SvgComponent } from "../types/svg";
+import type { Chess, Square } from "chess.js";
+import { Colors } from "../constants/chess/colors";
+import type { SquareHighlight } from "../types/chess/squareHighlight";
+import { pieceLogo } from "../utils/chess/pieceGlyphs";
+import { squareFileAndRank } from "../utils/chess/squareCoords";
+import { highlightRoleOnSquare } from "../utils/chess/squareHighlight";
 import { classNames } from "../utils/classNames";
 import CellCoordinates from "./CellCoordinates";
 
 export interface SquareCellProps {
-  fileIndex: number;
-  rankNumber: number;
-  isLightSquare: boolean;
-  Logo: SvgComponent | null;
-  selected: boolean;
-  kingInCheck: boolean;
-  lastMoveRole: "from" | "to" | null;
-  showMoveHint: boolean;
-  isCaptureHint: boolean;
+  square: Square;
+  chess: Chess;
+  viewFromColor: Colors;
+  selectedSquare: Square | null;
+  legalTargets: ReadonlySet<Square>;
+  checkSquare: Square | null;
+  lastMove: SquareHighlight | null;
   onClick: () => void;
 }
 
 function SquareCell({
-  fileIndex,
-  rankNumber,
-  isLightSquare,
-  Logo,
-  selected,
-  kingInCheck,
-  lastMoveRole,
-  showMoveHint,
-  isCaptureHint,
+  square,
+  chess,
+  viewFromColor,
+  selectedSquare,
+  legalTargets,
+  checkSquare,
+  lastMove,
   onClick,
 }: SquareCellProps) {
-  const lastMoveHighlight = lastMoveRole !== null;
-  const rankLabel = fileIndex === 0 ? String(rankNumber) : null;
-  const fileLabel = rankNumber === 1 ? String.fromCharCode(97 + fileIndex) : null;
+  const piece = chess.get(square);
+  const Logo = piece ? pieceLogo(piece.type, piece.color) : null;
+  const { fileIndex, rankNumber } = squareFileAndRank(square);
+  const isLightSquare = chess.squareColor(square) === "light";
+  const selected = square === selectedSquare;
+  const showMoveHint = legalTargets.has(square);
+  const isCaptureHint = showMoveHint && piece !== undefined;
+  const moveHighlightRole = highlightRoleOnSquare(square, lastMove);
+
+  const lastMoveHighlight = moveHighlightRole !== null;
+
+  const isWhiteView = viewFromColor === Colors.WHITE;
+  const showRankOnLeft = isWhiteView ? fileIndex === 0 : fileIndex === 7;
+  const showFileOnBottom = isWhiteView ? rankNumber === 1 : rankNumber === 8;
+
+  const rankLabel = showRankOnLeft ? String(rankNumber) : null;
+  const fileLabel = showFileOnBottom ? square.charAt(0) : null;
   const labelTextClassName = isLightSquare === false ? "text-chess-light" : "text-chess-dark";
 
   return (
@@ -40,7 +55,7 @@ function SquareCell({
           "bg-chess-light": isLightSquare && !selected,
           "bg-chess-dark": !isLightSquare && !selected,
           "bg-chess-selected": selected,
-          "z-2 ring-2 ring-inset ring-red-600/90": kingInCheck,
+          "z-2 ring-2 ring-inset ring-red-600/90": checkSquare !== null && square === checkSquare,
           "ring-2 ring-inset ring-amber-400/70": lastMoveHighlight && selected,
         },
       )}

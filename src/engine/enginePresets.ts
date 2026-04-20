@@ -11,4 +11,4 @@ export const ENGINE_PRESETS: EnginePreset[] = [
   { id: "hard", label: "Hard", movetime: 900, depth: 14 },
 ];
 
-export const DEFAULT_ENGINE_PRESET_ID = ENGINE_PRESETS[1].id;
+export const DEFAULT_ENGINE_PRESET = ENGINE_PRESETS[1];

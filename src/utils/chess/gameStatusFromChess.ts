@@ -1,15 +1,8 @@
 import type { Chess } from "chess.js";
 import { WHITE } from "chess.js";
-import { GameStatus } from "../models/GameStatus";
+import { GameStatus } from "../../constants/chess/gameStatus";
 
-/**
- * Maps a terminal (or ongoing) `Chess` position to `GameStatus`.
- *
- * Order matters: after checkmate and stalemate we classify specific draws
- * (`isInsufficientMaterial`, `isThreefoldRepetition`, `isDrawByFiftyMoves`) before the generic
- * `isDraw()` branch. Remaining draws fall through to `STALEMATE` because this app has no
- * separate `GameStatus` for e.g. dead position / agreement — align with product copy if you add one.
- */
+// Map chess.js game-over flags to GameStatus; classify specific draws before generic isDraw().
 export function gameStatusFromChess(chess: Chess): GameStatus {
   if (!chess.isGameOver()) return GameStatus.ACTIVE;
   if (chess.isCheckmate()) {

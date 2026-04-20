@@ -8,11 +8,11 @@ import queenDark from "../assets/queen-dark.svg?react";
 import queenLight from "../assets/queen-white.svg?react";
 import rookDark from "../assets/rook-dark.svg?react";
 import rookLight from "../assets/rook-white.svg?react";
-import type { PromotionChoice } from "../chess/promotion";
-import { Colors } from "../models/Colors";
+import { Colors } from "../constants/chess/colors";
+import type { PromotionChoice } from "../types/chess/promotion";
 import type { SvgComponent } from "../types/svg";
 
-export type { PromotionChoice } from "../chess/promotion";
+export type { PromotionChoice } from "../types/chess/promotion";
 
 const OPTIONS: { name: PromotionChoice; label: string; dark: SvgComponent; light: SvgComponent }[] =
   [

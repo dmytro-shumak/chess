@@ -8,7 +8,7 @@ import OnlineLobbyPage from "./pages/OnlineLobbyPage";
 import OnlinePlayPage from "./pages/OnlinePlayPage";
 import OnlineRoomLayout from "./pages/OnlineRoomLayout";
 import OnlineRoomPage from "./pages/OnlineRoomPage";
-import { ROUTES } from "./routes";
+import { ONLINE_ROUTES, ROUTES } from "./routes";
 
 export default function App() {
   return (
@@ -19,8 +19,8 @@ export default function App() {
       <Route path={ROUTES.online} element={<OnlineLayout />}>
         <Route index element={<OnlineLobbyPage />} />
         <Route element={<OnlineRoomLayout />}>
-          <Route path="room/:roomId" element={<OnlineRoomPage />} />
-          <Route path="play/:roomId" element={<OnlinePlayPage />} />
+          <Route path={ONLINE_ROUTES.room} element={<OnlineRoomPage />} />
+          <Route path={ONLINE_ROUTES.play} element={<OnlinePlayPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to={ROUTES.home} replace />} />

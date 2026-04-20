@@ -5,6 +5,11 @@ export const ROUTES = {
   online: "/online",
 } as const;
 
+export const ONLINE_ROUTES = {
+  room: "room/:roomId",
+  play: "play/:roomId",
+} as const;
+
 export function onlineRoomPath(roomId: string): string {
   return `${ROUTES.online}/room/${roomId.toUpperCase()}`;
 }

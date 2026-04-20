@@ -1,35 +1,30 @@
 import { Chess, type Move, WHITE } from "chess.js";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { activeCheckSquare } from "../chess/activeCheckSquare";
-import type { SquareHighlight } from "../chess/types";
+import { Colors } from "../constants/chess/colors";
+import { GameStatus } from "../constants/chess/gameStatus";
 import { applyStockfishBestMove } from "../engine/applyStockfishMove";
-import {
-  DEFAULT_ENGINE_PRESET_ID,
-  ENGINE_PRESETS,
-  type EnginePreset,
-} from "../engine/enginePresets";
+import { DEFAULT_ENGINE_PRESET, ENGINE_PRESETS, type EnginePreset } from "../engine/enginePresets";
 import { StockfishClient } from "../engine/stockfishClient";
 import { useCapturedPieces } from "../hooks/useCapturedPieces";
 import { useDelayedGameOverModal } from "../hooks/useDelayedGameOverModal";
 import { useGameStatusFromChess } from "../hooks/useGameStatusFromChess";
-import { Colors } from "../models/Colors";
-import { GameStatus } from "../models/GameStatus";
-import { Player } from "../models/Player";
-import { getGameOverModalCopy } from "../utils/getGameOverModalCopy";
+import type { Player } from "../types/chess/player";
+import type { SquareHighlight } from "../types/chess/squareHighlight";
+import { activeCheckSquare } from "../utils/chess/activeCheckSquare";
+import { getGameOverModalText } from "../utils/getGameOverModalText";
 import BoardComponent from "./BoardComponent";
+import ChessGameLayout from "./ChessGameLayout";
 import GameOverModal from "./GameOverModal";
-import Timer from "./Timer";
 
-const PLAYER_WHITE = new Player(Colors.WHITE, "You");
-const PLAYER_BLACK = new Player(Colors.BLACK, "Stockfish");
+const PLAYER_WHITE: Player = { color: Colors.WHITE, name: "You" };
+const PLAYER_BLACK: Player = { color: Colors.BLACK, name: "Stockfish" };
 
 export default function VsComputerChessGame() {
   const [chess, setChess] = useState(() => new Chess());
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(PLAYER_WHITE);
   const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.ACTIVE);
   const [movePlies, setMovePlies] = useState<string[]>([]);
-  const [boardResetKey, setBoardResetKey] = useState(0);
-  const [presetId, setPresetId] = useState<string>(DEFAULT_ENGINE_PRESET_ID);
+  const [presetId, setPresetId] = useState<string>(DEFAULT_ENGINE_PRESET.id);
   const [lastMoveHighlight, setLastMoveHighlight] = useState<SquareHighlight | null>(null);
   const {
     capturedByWhite,
@@ -48,7 +43,8 @@ export default function VsComputerChessGame() {
 
   chessRef.current = chess;
 
-  const preset: EnginePreset = ENGINE_PRESETS.find((p) => p.id === presetId) ?? ENGINE_PRESETS[1];
+  const preset: EnginePreset =
+    ENGINE_PRESETS.find((p) => p.id === presetId) ?? DEFAULT_ENGINE_PRESET;
 
   const initBoard = useCallback(() => {
     setChess(new Chess());
@@ -59,8 +55,8 @@ export default function VsComputerChessGame() {
   }, [resetCaptures]);
 
   const handleBoardMove = useCallback(
-    ({ san, move }: { san: string; uci: string; move: Move }) => {
-      setMovePlies((prev) => [...prev, san]);
+    (move: Move) => {
+      setMovePlies((prev) => [...prev, move.san]);
       appendFromMove(move);
     },
     [appendFromMove],
@@ -69,7 +65,6 @@ export default function VsComputerChessGame() {
   function restart() {
     stockfishRef.current?.stop();
     initBoard();
-    setBoardResetKey((k) => k + 1);
     setGameStatus(GameStatus.ACTIVE);
     searchGeneration.current += 1;
   }
@@ -91,16 +86,19 @@ export default function VsComputerChessGame() {
 
   useEffect(() => {
     if (gameStatus !== GameStatus.ACTIVE || currentPlayer?.color !== Colors.BLACK) return;
-    const client = stockfishRef.current;
-    if (!client) return;
+    const stockfish = stockfishRef.current;
+    if (!stockfish) return;
 
     const gen = ++searchGeneration.current;
     let cancelled = false;
 
-    void (async () => {
+    async function runEngineMove(): Promise<void> {
+      const engine = stockfishRef.current;
+      if (engine === null) return;
+
       try {
         const base = chessRef.current;
-        const result = await applyStockfishBestMove(client, base.fen(), preset);
+        const result = await applyStockfishBestMove(engine, base.fen(), preset);
         if (cancelled || gen !== searchGeneration.current || !result) return;
         setChess(() => new Chess(result.nextFen));
         setLastMoveHighlight(result.highlight);
@@ -110,38 +108,39 @@ export default function VsComputerChessGame() {
       } catch (error) {
         console.error("Error searching for best move:", error);
       }
-    })();
+    }
+
+    runEngineMove();
 
     return () => {
       cancelled = true;
-      client.stop();
+      stockfish.stop();
     };
   }, [currentPlayer?.color, gameStatus, preset, appendFromMove]);
 
   const checkSquare = activeCheckSquare(chess, gameStatus);
-  const gameOverCopy = getGameOverModalCopy(gameStatus);
+  const gameOverText = getGameOverModalText(gameStatus);
   const inputLocked = currentPlayer?.color === Colors.BLACK;
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col items-center p-4">
-      {gameOverCopy && (
+      {gameOverText && (
         <GameOverModal
           open={gameOverModalReady && !gameOverDismissed}
           onOpenChange={(open) => {
             if (!open) setGameOverDismissed(true);
           }}
-          copy={gameOverCopy}
+          text={gameOverText}
           onRematch={restart}
         />
       )}
-      <Timer
+      <ChessGameLayout
         currentPlayer={currentPlayer}
         whitePlayer={PLAYER_WHITE}
         blackPlayer={PLAYER_BLACK}
         restart={restart}
         clocksStarted={false}
         gameStatus={gameStatus}
-        onOutOfTime={() => {}}
         capturedByWhite={capturedByWhite}
         capturedByBlack={capturedByBlack}
         movePlies={movePlies}
@@ -167,7 +166,6 @@ export default function VsComputerChessGame() {
         }
       >
         <BoardComponent
-          key={boardResetKey}
           chess={chess}
           setChess={setChess}
           turnPlayer={currentPlayer}
@@ -179,7 +177,7 @@ export default function VsComputerChessGame() {
           lastMoveHighlight={lastMoveHighlight}
           onLastMoveHighlight={setLastMoveHighlight}
         />
-      </Timer>
+      </ChessGameLayout>
     </div>
   );
 }

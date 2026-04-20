@@ -23,6 +23,7 @@ export default function OnlineLobbyPage() {
   function handleJoin() {
     const code = joinCode.trim().toUpperCase();
     if (!code) return;
+    
     navigate(onlineRoomPath(code));
   }
 
@@ -35,9 +36,7 @@ export default function OnlineLobbyPage() {
           </Link>
           <h1 className="mt-2 text-2xl font-bold text-slate-900">Online</h1>
           <p className="mt-1 text-sm text-slate-600">
-            Real-time play over Socket.IO. Set{" "}
-            <code className="rounded bg-slate-100 px-1">VITE_ONLINE_SOCKET_URL</code> to your server
-            URL (default <code className="rounded bg-slate-100 px-1">http://127.0.0.1:3001</code>).
+            Play a live game with another person. Create a room and share the link, or join with a room code.
           </p>
         </div>
 
@@ -67,7 +66,7 @@ export default function OnlineLobbyPage() {
           type="button"
           onClick={() => void handleCreate()}
           disabled={!socketConnected}
-          className="ui-game-button bg-linear-to-br from-sky-700 via-sky-800 to-sky-950 shadow-lg disabled:pointer-events-none disabled:opacity-50"
+          className="ui-game-button from-sky-700 via-sky-800 to-sky-950 disabled:pointer-events-none disabled:opacity-50"
         >
           Create room
         </button>
@@ -88,7 +87,7 @@ export default function OnlineLobbyPage() {
           <button
             type="button"
             onClick={handleJoin}
-            className="ui-game-button shrink-0 bg-linear-to-br from-slate-700 via-slate-800 to-slate-950 shadow-lg"
+            className="ui-game-button w-auto shrink-0 from-slate-700 via-slate-800 to-slate-950"
           >
             Join
           </button>

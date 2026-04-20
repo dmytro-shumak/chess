@@ -1,4 +1,4 @@
-import { type ReactNode, useLayoutEffect, useRef } from "react";
+import { type ReactNode, useLayoutEffect, useMemo, useRef } from "react";
 import { classNames } from "../utils/classNames";
 
 interface GameSidePanelProps {
@@ -16,18 +16,22 @@ function GameSidePanel({ restartDisabled, onRestart, movePlies, footer }: GameSi
     if (!el || movePlies.length === 0) return;
     el.scrollTop = el.scrollHeight;
   }, [movePlies]);
-  const rows: { num: number; white?: string; black?: string }[] = [];
-  for (let i = 0; i < movePlies.length; i += 2) {
-    rows.push({
-      num: rows.length + 1,
-      white: movePlies[i],
-      black: movePlies[i + 1],
-    });
-  }
 
-  const lastIdx = movePlies.length - 1;
-  const highlightRow = lastIdx >= 0 ? Math.floor(lastIdx / 2) : -1;
-  const highlightWhite = lastIdx >= 0 && lastIdx % 2 === 0;
+  const moveRows = useMemo(() => {
+    const rows: { num: number; white?: string; black?: string }[] = [];
+    for (let whitePlyIndex = 0; whitePlyIndex < movePlies.length; whitePlyIndex += 2) {
+      rows.push({
+        num: rows.length + 1,
+        white: movePlies[whitePlyIndex],
+        black: movePlies[whitePlyIndex + 1],
+      });
+    }
+    return rows;
+  }, [movePlies]);
+
+  const lastPlyIndex = movePlies.length - 1;
+  const highlightFullMoveIndex = lastPlyIndex >= 0 ? Math.floor(lastPlyIndex / 2) : -1;
+  const highlightLastMoveWasWhite = lastPlyIndex >= 0 && lastPlyIndex % 2 === 0;
 
   return (
     <aside className="ui-side-panel">
@@ -35,7 +39,7 @@ function GameSidePanel({ restartDisabled, onRestart, movePlies, footer }: GameSi
         type="button"
         disabled={restartDisabled}
         onClick={onRestart}
-        className="ui-game-button ui-game-button--restart disabled:pointer-events-none disabled:opacity-40 disabled:grayscale"
+        className="ui-game-button from-amber-500 via-amber-600 to-amber-900 shadow-glow-amber disabled:pointer-events-none disabled:opacity-40 disabled:grayscale"
       >
         <span className="relative z-10 drop-shadow-sm">Restart</span>
       </button>
@@ -62,12 +66,12 @@ function GameSidePanel({ restartDisabled, onRestart, movePlies, footer }: GameSi
                 </tr>
               </thead>
               <tbody>
-                {rows.map((row, r) => (
+                {moveRows.map((row, index) => (
                   <tr key={row.num} className="border-t border-slate-200/80 first:border-t-0">
                     <td className="py-1 pr-2 text-slate-400">{row.num}</td>
                     <td
                       className={`rounded px-1.5 py-1 ${
-                        r === highlightRow && highlightWhite
+                        index === highlightFullMoveIndex && highlightLastMoveWasWhite
                           ? "bg-amber-100/90 text-slate-900 ring-1 ring-amber-200/60"
                           : ""
                       }`}
@@ -77,7 +81,7 @@ function GameSidePanel({ restartDisabled, onRestart, movePlies, footer }: GameSi
                     <td
                       className={classNames("rounded px-1.5 py-1", {
                         "bg-amber-100/90 text-slate-900 ring-1 ring-amber-200/60":
-                          r === highlightRow && !highlightWhite,
+                          index === highlightFullMoveIndex && !highlightLastMoveWasWhite,
                       })}
                     >
                       {row.black ?? ""}
@@ -89,11 +93,11 @@ function GameSidePanel({ restartDisabled, onRestart, movePlies, footer }: GameSi
           </div>
         )}
       </section>
-      {footer != null && (
+      {footer ? (
         <div className="mt-4 shrink-0 rounded-xl border border-slate-200/90 bg-white/80 p-3 shadow-inner ring-1 ring-slate-900/5">
           {footer}
         </div>
-      )}
+      ) : null}
     </aside>
   );
 }

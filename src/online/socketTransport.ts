@@ -1,8 +1,6 @@
 import { io, type Socket } from "socket.io-client";
 import type { ClientToServerMessage, PlayerId, RoomId, ServerToClientMessage } from "./protocol";
 
-const DEFAULT_SOCKET_URL = "http://127.0.0.1:3001";
-
 export interface IOnlineTransport {
   connect(): void;
   dispose(): void;
@@ -25,8 +23,12 @@ export class SocketTransport implements IOnlineTransport {
   private joinedSocketRoom: RoomId | null = null;
 
   constructor(playerId: PlayerId) {
+    if (!import.meta.env.VITE_ONLINE_SOCKET_URL) {
+      throw new Error("VITE_ONLINE_SOCKET_URL is not set");
+    }
+
     this.playerId = playerId;
-    this.url = (import.meta.env.VITE_ONLINE_SOCKET_URL as string | undefined) ?? DEFAULT_SOCKET_URL;
+    this.url = (import.meta.env.VITE_ONLINE_SOCKET_URL as string);
   }
 
   connect(): void {
@@ -57,12 +59,11 @@ export class SocketTransport implements IOnlineTransport {
     });
 
     this.socket.on("s2c", (msg: ServerToClientMessage) => {
-      this.handlers.forEach((h) => {
-        h(msg);
-      });
+      this.handlers.forEach((handler) => handler(msg));
     });
   }
 
+  // Tear everything down when leaving the online screen
   dispose(): void {
     this.handlers.clear();
     this.connectionHandlers.clear();
@@ -76,17 +77,20 @@ export class SocketTransport implements IOnlineTransport {
     }
   }
 
+  // Subscribe to server pushes
   onMessage(handler: (msg: ServerToClientMessage) => void): () => void {
     this.handlers.add(handler);
     return () => this.handlers.delete(handler);
   }
 
+  // Fires once with the current socket state, then on every connect / disconnect.
   onConnectionState(handler: (connected: boolean) => void): () => void {
     this.connectionHandlers.add(handler);
     handler(Boolean(this.socket?.connected));
     return () => this.connectionHandlers.delete(handler);
   }
 
+  // Watch a room
   watchRoom(roomId: RoomId | null): void {
     if (this.joinedSocketRoom && this.socket?.connected) {
       this.socket.emit("leave_room", { roomId: this.joinedSocketRoom });
@@ -96,6 +100,7 @@ export class SocketTransport implements IOnlineTransport {
     this.reapplyRoomWatch();
   }
 
+  // Ask the server to create a room
   createRoom(nick: string, timeControlSeconds?: number): Promise<RoomId> {
     return new Promise((resolve, reject) => {
       const timeout = window.setTimeout(() => {
@@ -125,6 +130,7 @@ export class SocketTransport implements IOnlineTransport {
     });
   }
 
+  // Tell the server we're joining an existing room code.
   joinRoom(roomId: RoomId, nick: string): void {
     this.emitC2s({
       type: "join_room",
@@ -134,6 +140,7 @@ export class SocketTransport implements IOnlineTransport {
     });
   }
 
+  // One half-move to the server
   sendMove(roomId: RoomId, uci: string, san: string, plyIndex: number): void {
     this.emitC2s({
       type: "move",
@@ -145,22 +152,27 @@ export class SocketTransport implements IOnlineTransport {
     });
   }
 
+  // Notify connection state
   private notifyConnection(connected: boolean): void {
-    this.connectionHandlers.forEach((h) => {
-      h(connected);
+    this.connectionHandlers.forEach((handler) => {
+      handler(connected);
     });
   }
 
+  // Client → server envelope
   private emitC2s(msg: ClientToServerMessage): void {
     if (!this.socket?.connected) {
       this.outbox.push(msg);
       return;
     }
+
     this.socket.emit("c2s", msg);
   }
 
+  // After reconnect, push anything we queued while the socket was down.
   private flushOutbox(): void {
     if (!this.socket?.connected) return;
+
     while (this.outbox.length > 0) {
       const msg = this.outbox.shift();
       if (msg === undefined) break;
@@ -171,6 +183,7 @@ export class SocketTransport implements IOnlineTransport {
   private reapplyRoomWatch(): void {
     const roomId = this.watchedRoomId;
     if (!roomId || !this.socket?.connected) return;
+
     this.socket.emit("join_room", { roomId });
     this.joinedSocketRoom = roomId;
     this.emitC2s({ type: "sync_room", roomId, playerId: this.playerId });

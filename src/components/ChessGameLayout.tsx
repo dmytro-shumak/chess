@@ -1,12 +1,12 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
-import type { CapturedDisplay } from "../chess/capturedFromMove";
-import { Colors } from "../models/Colors";
-import { GameStatus } from "../models/GameStatus";
-import type { Player } from "../models/Player";
+import { Colors } from "../constants/chess/colors";
+import { GameStatus } from "../constants/chess/gameStatus";
+import type { CapturedDisplay } from "../types/chess/capturedDisplay";
+import type { Player } from "../types/chess/player";
 import GameSidePanel from "./GameSidePanel";
 import PlayerBar from "./PlayerBar";
 
-interface TimerProps {
+interface ChessGameLayoutProps {
   children: ReactNode;
   currentPlayer: Player | null;
   whitePlayer: Player;
@@ -16,22 +16,21 @@ interface TimerProps {
   gameStatus: GameStatus;
   capturedByWhite: CapturedDisplay[];
   capturedByBlack: CapturedDisplay[];
-  onOutOfTime: (loser: Colors) => void;
+  onOutOfTime?: (loser: Colors) => void;
   movePlies: string[];
-  /** When false, no clocks or timeout logic (e.g. vs computer). */
+  // false = no clock / timeout (e.g. vs computer).
   clocked?: boolean;
-  /** Swap vertical order so the black player bar is at the bottom (online black perspective). */
+  // Put black bar at bottom
   invertPlayerBars?: boolean;
-  /** Override default 5+5 minutes (e.g. online room time control). */
   initialClockSeconds?: number;
-  /** When true, the restart control stays disabled (e.g. online mock cannot reset shared storage). */
+  // Disable restart
   lockRestart?: boolean;
   sidePanelFooter?: ReactNode;
 }
 
 const INITIAL_TIME = 300; // 5 minutes in seconds
 
-function Timer({
+function ChessGameLayout({
   children,
   currentPlayer,
   whitePlayer,
@@ -48,7 +47,7 @@ function Timer({
   initialClockSeconds,
   lockRestart = false,
   sidePanelFooter,
-}: TimerProps) {
+}: ChessGameLayoutProps) {
   const startSeconds = initialClockSeconds ?? INITIAL_TIME;
   const [blackTime, setBlackTime] = useState(startSeconds);
   const [whiteTime, setWhiteTime] = useState(startSeconds);
@@ -63,12 +62,12 @@ function Timer({
     if (!clocked || gameStatus !== GameStatus.ACTIVE || !clocksStarted) return;
 
     if (currentPlayer?.color === Colors.WHITE && whiteTime <= 0) {
-      onOutOfTime(Colors.WHITE);
+      onOutOfTime?.(Colors.WHITE);
       return;
     }
 
     if (currentPlayer?.color === Colors.BLACK && blackTime <= 0) {
-      onOutOfTime(Colors.BLACK);
+      onOutOfTime?.(Colors.BLACK);
     }
   }, [clocked, whiteTime, blackTime, gameStatus, clocksStarted, currentPlayer, onOutOfTime]);
 
@@ -113,12 +112,18 @@ function Timer({
 
   const topPlayer = invertPlayerBars ? whitePlayer : blackPlayer;
   const bottomPlayer = invertPlayerBars ? blackPlayer : whitePlayer;
+
   const topSeconds = invertPlayerBars ? whiteTime : blackTime;
   const bottomSeconds = invertPlayerBars ? blackTime : whiteTime;
+
   const topActive = invertPlayerBars ? whiteActive : blackActive;
   const bottomActive = invertPlayerBars ? blackActive : whiteActive;
+
   const topCaptured = invertPlayerBars ? capturedByWhite : capturedByBlack;
   const bottomCaptured = invertPlayerBars ? capturedByBlack : capturedByWhite;
+
+  const restartDisabled =
+    lockRestart || (clocked && !clocksStarted && gameStatus === GameStatus.ACTIVE);
 
   return (
     <div className="flex w-full max-w-7xl flex-col items-stretch gap-8 lg:flex-row lg:items-start lg:justify-center">
@@ -138,9 +143,7 @@ function Timer({
         />
       </div>
       <GameSidePanel
-        restartDisabled={
-          lockRestart || (clocked && !clocksStarted && gameStatus === GameStatus.ACTIVE)
-        }
+        restartDisabled={restartDisabled}
         onRestart={handleRestart}
         movePlies={movePlies}
         footer={sidePanelFooter}
@@ -149,4 +152,4 @@ function Timer({
   );
 }
 
-export default Timer;
+export default ChessGameLayout;

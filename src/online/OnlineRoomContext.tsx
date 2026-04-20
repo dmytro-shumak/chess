@@ -24,10 +24,8 @@ export function OnlineRoomProvider({ roomId, children }: { roomId: RoomId; child
 
     function handleMessage(msg: ServerToClientMessage): void {
       if (msg.type === "error") {
-        if (msg.code === "ROOM_NOT_FOUND") {
-          setSyncError(msg.message);
-          setRoom(null);
-        }
+        setSyncError(msg.message);
+        setRoom(null);
         return;
       }
       if (
@@ -39,9 +37,9 @@ export function OnlineRoomProvider({ roomId, children }: { roomId: RoomId; child
       setRoom((prev) => applyServerMessage(prev, msg, roomId));
     }
 
-    const unsub = transport.onMessage(handleMessage);
+    const unsubscribe = transport.onMessage(handleMessage);
     return () => {
-      unsub();
+      unsubscribe();
       transport.watchRoom(null);
     };
   }, [transport, roomId]);

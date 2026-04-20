@@ -1,10 +1,10 @@
 import * as Dialog from "@radix-ui/react-dialog";
-import type { GameOverModalCopy } from "../utils/getGameOverModalCopy";
+import type { GameOverModalText } from "../utils/getGameOverModalText";
 
 interface GameOverModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  copy: GameOverModalCopy;
+  text: GameOverModalText;
   onRematch: () => void;
   showRematch?: boolean;
 }
@@ -12,7 +12,7 @@ interface GameOverModalProps {
 function GameOverModal({
   open,
   onOpenChange,
-  copy,
+  text,
   onRematch,
   showRematch = true,
 }: GameOverModalProps) {
@@ -20,7 +20,10 @@ function GameOverModal({
     <Dialog.Root open={open} onOpenChange={onOpenChange} modal>
       <Dialog.Portal>
         <Dialog.Overlay className="game-over-modal-overlay fixed inset-0 z-200 bg-black/50" />
-        <Dialog.Content className="game-over-modal-content fixed left-1/2 top-1/2 z-201 w-[min(100vw-2rem,380px)] rounded-2xl border border-slate-200 bg-white p-6 shadow-xl outline-none">
+        <Dialog.Content
+          className="game-over-modal-content fixed left-1/2 top-1/2 z-201 w-[min(100vw-2rem,380px)] rounded-2xl border border-slate-200 bg-white p-6 shadow-xl outline-none"
+          onPointerDownOutside={(e) => e.preventDefault()}
+        >
           <div className="mb-4 flex items-start justify-between gap-3">
             <Dialog.Title className="text-xl font-bold text-slate-900">Game over</Dialog.Title>
             <Dialog.Close
@@ -36,12 +39,12 @@ function GameOverModal({
 
           <Dialog.Description asChild>
             <div className="space-y-3 text-slate-700">
-              {copy.winnerLabel && (
-                <p className="text-lg font-semibold text-emerald-800">Winner: {copy.winnerLabel}</p>
+              {text.winnerLabel && (
+                <p className="text-lg font-semibold text-emerald-800">Winner: {text.winnerLabel}</p>
               )}
-              {!copy.winnerLabel && <p className="text-lg font-semibold text-slate-800">Draw</p>}
-              <p className="text-base">{copy.resultLine}</p>
-              {copy.detailLine && <p className="text-sm text-slate-600">{copy.detailLine}</p>}
+              {!text.winnerLabel && <p className="text-lg font-semibold text-slate-800">Draw</p>}
+              <p className="text-base">{text.resultLine}</p>
+              {text.detailLine && <p className="text-sm text-slate-600">{text.detailLine}</p>}
             </div>
           </Dialog.Description>
 

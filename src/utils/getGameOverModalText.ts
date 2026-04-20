@@ -1,12 +1,12 @@
-import { GameStatus } from "../models/GameStatus";
+import { GameStatus } from "../constants/chess/gameStatus";
 
-export type GameOverModalCopy = {
+export type GameOverModalText = {
   winnerLabel: string | null;
   resultLine: string;
   detailLine: string | null;
 };
 
-export function getGameOverModalCopy(status: GameStatus): GameOverModalCopy | null {
+export function getGameOverModalText(status: GameStatus): GameOverModalText | null {
   switch (status) {
     case GameStatus.CHECKMATE_WHITE:
       return {

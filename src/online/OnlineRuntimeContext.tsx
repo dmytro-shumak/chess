@@ -18,11 +18,11 @@ export function OnlineRuntimeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     transport.connect();
-    return transport.onConnectionState(setSocketConnected);
-  }, [transport]);
-
-  useEffect(() => {
-    return () => transport.dispose();
+    const unsubscribe = transport.onConnectionState(setSocketConnected);
+    return () => {
+      unsubscribe();
+      transport.dispose();
+    };
   }, [transport]);
 
   const value = useMemo(
@@ -38,5 +38,6 @@ export function useOnlineRuntime(): OnlineRuntimeValue {
   if (!ctx) {
     throw new Error("useOnlineRuntime must be used under OnlineRuntimeProvider");
   }
+
   return ctx;
 }

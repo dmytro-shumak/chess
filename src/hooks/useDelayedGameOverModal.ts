@@ -1,5 +1,5 @@
 import { type Dispatch, type SetStateAction, useEffect, useRef, useState } from "react";
-import { GameStatus } from "../models/GameStatus";
+import { GameStatus } from "../constants/chess/gameStatus";
 
 export const DEFAULT_GAME_OVER_MODAL_DELAY_MS = 500;
 

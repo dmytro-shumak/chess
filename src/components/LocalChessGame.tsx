@@ -1,26 +1,26 @@
 import { Chess, type Move, WHITE } from "chess.js";
 import { useCallback, useState } from "react";
-import { activeCheckSquare } from "../chess/activeCheckSquare";
+import { Colors } from "../constants/chess/colors";
+import { GameStatus } from "../constants/chess/gameStatus";
 import { useCapturedPieces } from "../hooks/useCapturedPieces";
 import { useDelayedGameOverModal } from "../hooks/useDelayedGameOverModal";
 import { useGameStatusFromChess } from "../hooks/useGameStatusFromChess";
-import { Colors } from "../models/Colors";
-import { GameStatus } from "../models/GameStatus";
-import { Player } from "../models/Player";
-import { getGameOverModalCopy } from "../utils/getGameOverModalCopy";
+import type { Player } from "../types/chess/player";
+import { activeCheckSquare } from "../utils/chess/activeCheckSquare";
+import { getGameOverModalText } from "../utils/getGameOverModalText";
 import BoardComponent from "./BoardComponent";
+import ChessGameLayout from "./ChessGameLayout";
 import GameOverModal from "./GameOverModal";
-import Timer from "./Timer";
 
-const PLAYER_WHITE = new Player(Colors.WHITE, "White");
-const PLAYER_BLACK = new Player(Colors.BLACK, "Black");
+const PLAYER_WHITE: Player = { color: Colors.WHITE, name: "White" };
+const PLAYER_BLACK: Player = { color: Colors.BLACK, name: "Black" };
 
 export default function LocalChessGame() {
   const [chess, setChess] = useState(() => new Chess());
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(PLAYER_WHITE);
   const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.ACTIVE);
+  // SAN list per ply for side panel move history.
   const [movePlies, setMovePlies] = useState<string[]>([]);
-  const [boardResetKey, setBoardResetKey] = useState(0);
   const [clocksStarted, setClocksStarted] = useState(false);
   const {
     capturedByWhite,
@@ -40,9 +40,10 @@ export default function LocalChessGame() {
     resetCaptures();
   }
 
+  // After a legal move on the board append SAN to history
   const handleBoardMove = useCallback(
-    ({ san, move }: { san: string; uci: string; move: Move }) => {
-      setMovePlies((prev) => [...prev, san]);
+    (move: Move) => {
+      setMovePlies((prev) => [...prev, move.san]);
       appendFromMove(move);
     },
     [appendFromMove],
@@ -50,7 +51,6 @@ export default function LocalChessGame() {
 
   function restart() {
     initBoard();
-    setBoardResetKey((k) => k + 1);
     setGameStatus(GameStatus.ACTIVE);
     setClocksStarted(false);
   }
@@ -65,21 +65,21 @@ export default function LocalChessGame() {
   }
 
   const checkSquare = activeCheckSquare(chess, gameStatus);
-  const gameOverCopy = getGameOverModalCopy(gameStatus);
+  const gameOverText = getGameOverModalText(gameStatus);
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col items-center p-4">
-      {gameOverCopy && (
+      {gameOverText && (
         <GameOverModal
           open={gameOverModalReady && !gameOverDismissed}
           onOpenChange={(open) => {
             if (!open) setGameOverDismissed(true);
           }}
-          copy={gameOverCopy}
+          text={gameOverText}
           onRematch={restart}
         />
       )}
-      <Timer
+      <ChessGameLayout
         currentPlayer={currentPlayer}
         whitePlayer={PLAYER_WHITE}
         blackPlayer={PLAYER_BLACK}
@@ -92,7 +92,6 @@ export default function LocalChessGame() {
         movePlies={movePlies}
       >
         <BoardComponent
-          key={boardResetKey}
           chess={chess}
           setChess={setChess}
           turnPlayer={currentPlayer}
@@ -101,7 +100,7 @@ export default function LocalChessGame() {
           checkSquare={checkSquare}
           onMove={handleBoardMove}
         />
-      </Timer>
+      </ChessGameLayout>
     </div>
   );
 }

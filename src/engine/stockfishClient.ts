@@ -1,74 +1,105 @@
 export type EngineGoOptions = { movetime?: number; depth?: number };
 
+// Worker script path; BASE_URL matters when the app is not served from /.
 function workerScriptUrl(): string {
   const base = import.meta.env.BASE_URL || "/";
   const normalized = base.endsWith("/") ? base : `${base}/`;
+
   return `${normalized}stockfish/stockfish-18-lite-single.js`;
 }
 
-/**
- * Minimal UCI client for Stockfish.js lite single (WASM) loaded from `/stockfish/`.
- */
+// Thin UCI client: post lines to Stockfish in a Web Worker, read lines back.
 export class StockfishClient {
   private worker: Worker | null = null;
   private readonly listeners = new Set<(line: string) => void>();
   private initPromise: Promise<void> | null = null;
+
+  // One go at a time — queue the next search after the current one finishes.
   private commandChain: Promise<void> = Promise.resolve();
 
+  // Spin up the worker on first use; reuse it after that.
   private ensureWorker(): Worker {
-    if (this.worker) return this.worker;
-    const w = new Worker(workerScriptUrl(), { type: "classic" });
-    w.onmessage = (e: MessageEvent<unknown>) => {
-      const line = String(e.data ?? "").trim();
-      if (!line) return;
-      this.listeners.forEach((fn) => {
-        fn(line);
+    if (this.worker) {
+      return this.worker;
+    }
+
+    const stockfishWorker = new Worker(workerScriptUrl(), { type: "classic" });
+
+    stockfishWorker.onmessage = (event: MessageEvent<unknown>) => {
+      const line = String(event.data ?? "").trim();
+
+      if (!line) {
+        return;
+      }
+
+      this.listeners.forEach((listener) => {
+        listener(line);
       });
     };
-    this.worker = w;
-    return w;
+
+    this.worker = stockfishWorker;
+
+    return stockfishWorker;
   }
 
-  private post(cmd: string): void {
-    this.ensureWorker().postMessage(cmd);
+  // One UCI command, as text.
+  private post(command: string): void {
+    this.ensureWorker().postMessage(command);
   }
 
-  private onLine(fn: (line: string) => void): () => void {
-    this.listeners.add(fn);
-    return () => this.listeners.delete(fn);
+  // Listen for engine lines until you call the returned function.
+  private onLine(handler: (line: string) => void): () => void {
+    this.listeners.add(handler);
+
+    return () => {
+      this.listeners.delete(handler);
+    };
   }
 
   init(): Promise<void> {
-    if (this.initPromise) return this.initPromise;
+    if (this.initPromise) {
+      return this.initPromise;
+    }
+
     this.ensureWorker();
+
     this.initPromise = new Promise((resolve) => {
-      let uciOk = false;
-      const off = this.onLine((line) => {
+      let sawUciOk = false;
+
+      const unsubscribe = this.onLine((line) => {
         if (line === "uciok") {
-          uciOk = true;
+          sawUciOk = true;
           this.post("isready");
+
           return;
         }
-        if (uciOk && line === "readyok") {
-          off();
+
+        if (sawUciOk && line === "readyok") {
+          unsubscribe();
           resolve();
         }
       });
+
       this.post("uci");
     });
+
     return this.initPromise;
   }
 
+  // Stop thinking
   stop(): void {
     this.post("stop");
   }
 
+  // Quit + kill the worker
   dispose(): void {
     try {
       this.post("quit");
     } catch {
-      /* ignore */
+      console.error("Error quitting stockfish worker");
+      // quit may throw if worker already dead
     }
+
     this.worker?.terminate();
     this.worker = null;
     this.listeners.clear();
@@ -76,41 +107,52 @@ export class StockfishClient {
     this.commandChain = Promise.resolve();
   }
 
-  /**
-   * Runs `position fen` + `go` and resolves to the UCI best move (e.g. e2e4).
-   */
+  // position + go, then resolve with the move string from the bestmove line.
   goBestMove(fen: string, options: EngineGoOptions): Promise<string> {
-    const run = async (): Promise<string> => {
+    const searchOnce = async (): Promise<string> => {
       await this.init();
+
       return await new Promise<string>((resolve, reject) => {
-        const off = this.onLine((line) => {
-          if (!line.startsWith("bestmove")) return;
-          off();
-          const token = line.split(/\s+/)[1];
-          if (!token || token === "(none)") {
-            reject(new Error(line));
+        const unsubscribe = this.onLine((line) => {
+          if (!line.startsWith("bestmove")) {
             return;
           }
-          resolve(token);
+
+          unsubscribe();
+
+          const bestMoveToken = line.split(/\s+/)[1];
+
+          if (!bestMoveToken || bestMoveToken === "(none)") {
+            reject(new Error(line));
+
+            return;
+          }
+
+          resolve(bestMoveToken);
         });
+
         this.post(`position fen ${fen}`);
-        if (options.movetime != null && options.depth != null) {
-          this.post(`go movetime ${options.movetime} depth ${options.depth}`);
-        } else if (options.movetime != null) {
-          this.post(`go movetime ${options.movetime}`);
-        } else if (options.depth != null) {
-          this.post(`go depth ${options.depth}`);
-        } else {
-          this.post("go depth 10");
+
+        const goParts: string[] = [];
+        if (options.movetime !== undefined) {
+          goParts.push("movetime", String(options.movetime));
         }
+        if (options.depth !== undefined) {
+          goParts.push("depth", String(options.depth));
+        }
+        const goCommand =
+          goParts.length > 0 ? `go ${goParts.join(" ")}` : "go depth 10";
+        this.post(goCommand);
       });
     };
 
-    const next = this.commandChain.then(run, run);
-    this.commandChain = next.then(
-      () => {},
-      () => {},
+    const pendingSearch = this.commandChain.then(searchOnce, searchOnce);
+
+    this.commandChain = pendingSearch.then(
+      () => undefined,
+      () => undefined,
     );
-    return next;
+
+    return pendingSearch;
   }
 }

@@ -13,12 +13,12 @@ export default function OnlineRoomPage() {
   const [banner, setBanner] = useState<string | null>(null);
 
   useEffect(() => {
-    const unsub = transport.onMessage((msg) => {
+    const unsubscribe = transport.onMessage((msg) => {
       if (msg.type === "error" && msg.code !== "ROOM_NOT_FOUND") {
         setBanner(msg.message);
       }
     });
-    return unsub;
+    return unsubscribe;
   }, [transport]);
 
   useEffect(() => {
@@ -94,7 +94,11 @@ export default function OnlineRoomPage() {
               className="rounded-lg border border-slate-300 px-3 py-2 text-base shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
             />
           </label>
-          <button type="button" onClick={handleJoin} className="ui-game-button bg-sky-800 shadow">
+          <button
+            type="button"
+            onClick={handleJoin}
+            className="ui-game-button from-sky-700 via-sky-800 to-sky-950"
+          >
             Join room
           </button>
         </div>

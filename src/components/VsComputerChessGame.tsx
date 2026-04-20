@@ -2,7 +2,7 @@ import BoardComponent, { type SquareHighlight } from "./BoardComponent";
 import GameOverModal from "./GameOverModal";
 import { StockfishClient } from "../engine/stockfishClient";
 import { DEFAULT_ENGINE_PRESET_ID, ENGINE_PRESETS, type EnginePreset } from "../engine/enginePresets";
-import { Chess, type Move } from "chess.js";
+import { Chess, WHITE, type Move } from "chess.js";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Colors } from "../models/Colors";
 import { Player } from "../models/Player";
@@ -59,7 +59,7 @@ export default function VsComputerChessGame() {
     setMovePlies((prev) => [...prev, san]);
     const cap = capturedDisplayFromMove(move);
     if (cap) {
-      if (move.color === "w") setCapturedByWhite((prev) => [...prev, cap]);
+      if (move.color === WHITE) setCapturedByWhite((prev) => [...prev, cap]);
       else setCapturedByBlack((prev) => [...prev, cap]);
     }
   }, []);
@@ -120,7 +120,7 @@ export default function VsComputerChessGame() {
   }, [chess]);
 
   function swapPlayer() {
-    setCurrentPlayer(chess.turn() === "w" ? PLAYER_WHITE : PLAYER_BLACK);
+    setCurrentPlayer(chess.turn() === WHITE ? PLAYER_WHITE : PLAYER_BLACK);
   }
 
   useEffect(() => {
@@ -148,7 +148,7 @@ export default function VsComputerChessGame() {
         setCurrentPlayer(PLAYER_WHITE);
         const cap = capturedDisplayFromMove(m);
         if (cap) {
-          if (m.color === "w") setCapturedByWhite((prev) => [...prev, cap]);
+          if (m.color === WHITE) setCapturedByWhite((prev) => [...prev, cap]);
           else setCapturedByBlack((prev) => [...prev, cap]);
         }
       } catch (error) {

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Chess } from "chess.js";
+import { Chess, WHITE } from "chess.js";
 import BoardComponent, { type SquareHighlight } from "./BoardComponent";
 import GameOverModal from "./GameOverModal";
 import Timer from "./Timer";
@@ -107,7 +107,7 @@ export default function OnlineChessGame() {
       lastHl = { from: p.from, to: p.to };
       const cap = capturedDisplayFromMove(m);
       if (cap) {
-        if (m.color === "w") wc.push(cap);
+        if (m.color === WHITE) wc.push(cap);
         else bc.push(cap);
       }
     }

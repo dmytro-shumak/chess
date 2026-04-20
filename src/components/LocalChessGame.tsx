@@ -1,6 +1,6 @@
 import BoardComponent from "./BoardComponent";
 import GameOverModal from "./GameOverModal";
-import { Chess, type Move } from "chess.js";
+import { Chess, WHITE, type Move } from "chess.js";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Colors } from "../models/Colors";
 import { Player } from "../models/Player";
@@ -47,7 +47,7 @@ export default function LocalChessGame() {
       setMovePlies((prev) => [...prev, san]);
       const cap = capturedDisplayFromMove(move);
       if (cap) {
-        if (move.color === "w") setCapturedByWhite((prev) => [...prev, cap]);
+        if (move.color === WHITE) setCapturedByWhite((prev) => [...prev, cap]);
         else setCapturedByBlack((prev) => [...prev, cap]);
       }
     },
@@ -106,7 +106,7 @@ export default function LocalChessGame() {
 
   function swapPlayer() {
     setClocksStarted(true);
-    setCurrentPlayer(chess.turn() === "w" ? PLAYER_WHITE : PLAYER_BLACK);
+    setCurrentPlayer(chess.turn() === WHITE ? PLAYER_WHITE : PLAYER_BLACK);
   }
 
   const checkSquare =

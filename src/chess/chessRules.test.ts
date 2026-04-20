@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { Chess } from "chess.js";
+import { Chess, PAWN, QUEEN } from "chess.js";
 import { parseUci } from "./uci";
 
 describe("parseUci", () => {
@@ -8,7 +8,7 @@ describe("parseUci", () => {
   });
 
   it("parses promotion", () => {
-    expect(parseUci("e7e8q")).toEqual({ from: "e7", to: "e8", promotion: "q" });
+    expect(parseUci("e7e8q")).toEqual({ from: "e7", to: "e8", promotion: QUEEN });
   });
 
   it("returns null for garbage", () => {
@@ -21,7 +21,7 @@ describe("chess.js moves", () => {
     const c = new Chess();
     const m = c.move({ from: "e2", to: "e4" });
     expect(m).not.toBeNull();
-    expect(c.get("e4")?.type).toBe("p");
+    expect(c.get("e4")?.type).toBe(PAWN);
   });
 
   it("rejects wrong side to move", () => {

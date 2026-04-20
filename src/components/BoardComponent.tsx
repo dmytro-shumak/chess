@@ -1,4 +1,15 @@
-import { Chess, type Color, type Move, type Square } from "chess.js";
+import {
+  Chess,
+  BLACK,
+  BISHOP,
+  KNIGHT,
+  QUEEN,
+  ROOK,
+  WHITE,
+  type Color,
+  type Move,
+  type Square,
+} from "chess.js";
 import { useMemo, useState } from "react";
 import SquareCell from "./SquareCell";
 import PromotionModal, { type PromotionChoice } from "./PromotionModal";
@@ -61,7 +72,7 @@ function BoardComponent({
 
   const turnColor: Color | null = useMemo(() => {
     if (!turnPlayer) return null;
-    return turnPlayer.color === Colors.WHITE ? "w" : "b";
+    return turnPlayer.color === Colors.WHITE ? WHITE : BLACK;
   }, [turnPlayer]);
 
   const legalTargets = useMemo(() => {
@@ -109,7 +120,7 @@ function BoardComponent({
     const promoOptions: PromotionChoice[] = [];
     for (const m of candidates) {
       const p = m.promotion;
-      if (p !== "q" && p !== "r" && p !== "b" && p !== "n") continue;
+      if (p !== QUEEN && p !== ROOK && p !== BISHOP && p !== KNIGHT) continue;
       if (!promoOptions.includes(p)) promoOptions.push(p);
     }
     if (promoOptions.length > 1) {
@@ -144,7 +155,7 @@ function BoardComponent({
     }
   }
 
-  const promotionColor = chess.turn() === "w" ? Colors.WHITE : Colors.BLACK;
+  const promotionColor = chess.turn() === WHITE ? Colors.WHITE : Colors.BLACK;
 
   return (
     <div className="my-1">

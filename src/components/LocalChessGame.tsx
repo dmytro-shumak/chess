@@ -1,10 +1,12 @@
 import { Chess, type Move, WHITE } from "chess.js";
 import { useCallback, useState } from "react";
+import { Link } from "react-router-dom";
 import { Colors } from "../constants/chess/colors";
 import { GameStatus } from "../constants/chess/gameStatus";
 import { useCapturedPieces } from "../hooks/useCapturedPieces";
 import { useDelayedGameOverModal } from "../hooks/useDelayedGameOverModal";
 import { useGameStatusFromChess } from "../hooks/useGameStatusFromChess";
+import { ROUTES } from "../routes";
 import type { Player } from "../types/chess/player";
 import { activeCheckSquare } from "../utils/chess/activeCheckSquare";
 import { getGameOverModalText } from "../utils/getGameOverModalText";
@@ -90,6 +92,11 @@ export default function LocalChessGame() {
         capturedByWhite={capturedByWhite}
         capturedByBlack={capturedByBlack}
         movePlies={movePlies}
+        navColumn={
+          <Link to={ROUTES.home} className="text-sm font-medium text-sky-800 hover:underline">
+            ← Home
+          </Link>
+        }
       >
         <BoardComponent
           chess={chess}

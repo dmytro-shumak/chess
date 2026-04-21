@@ -21,7 +21,7 @@ import GameOverModal from "./GameOverModal";
 
 export default function OnlineChessGame() {
   const { playerId, transport } = useOnlineRuntime();
-  const { room, roomId, actionError, clearActionError } = useOnlineRoom();
+  const { room, roomId } = useOnlineRoom();
 
   const [chess, setChess] = useState(() => new Chess());
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
@@ -119,14 +119,6 @@ export default function OnlineChessGame() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col items-center p-4">
-      <div className="mb-4 flex w-full max-w-7xl items-center justify-between gap-2">
-        <Link to={ROUTES.online} className="text-sm font-medium text-sky-800 hover:underline">
-          ← Lobby
-        </Link>
-        <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
-          Room {roomId} · {myColor === Colors.WHITE ? "White" : "Black"}
-        </span>
-      </div>
       {gameOverText && (
         <GameOverModal
           open={gameOverModalReady && !gameOverDismissed}
@@ -152,6 +144,16 @@ export default function OnlineChessGame() {
         invertPlayerBars={myColor === Colors.BLACK}
         initialClockSeconds={room?.timeControlSeconds}
         lockRestart={gameStatus === GameStatus.ACTIVE}
+        navColumn={
+          <>
+            <Link to={ROUTES.online} className="text-sm font-medium text-sky-800 hover:underline">
+              ← Lobby
+            </Link>
+            <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              Room {roomId} · {myColor === Colors.WHITE ? "White" : "Black"}
+            </span>
+          </>
+        }
       >
         <BoardComponent
           chess={chess}

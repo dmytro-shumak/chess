@@ -26,6 +26,7 @@ interface ChessGameLayoutProps {
   // Disable restart
   lockRestart?: boolean;
   sidePanelFooter?: ReactNode;
+  navColumn?: ReactNode;
 }
 
 const INITIAL_TIME = 300; // 5 minutes in seconds
@@ -47,6 +48,7 @@ function ChessGameLayout({
   initialClockSeconds,
   lockRestart = false,
   sidePanelFooter,
+  navColumn,
 }: ChessGameLayoutProps) {
   const startSeconds = initialClockSeconds ?? INITIAL_TIME;
   const [blackTime, setBlackTime] = useState(startSeconds);
@@ -126,7 +128,12 @@ function ChessGameLayout({
     lockRestart || (clocked && !clocksStarted && gameStatus === GameStatus.ACTIVE);
 
   return (
-    <div className="flex w-full max-w-7xl flex-col items-stretch gap-8 lg:flex-row lg:items-start lg:justify-center">
+    <div className="flex w-full max-w-7xl flex-row items-start justify-center gap-8">
+      {navColumn !== undefined && navColumn !== null ? (
+        <div className="flex max-w-48 shrink-0 flex-col items-start gap-2 self-start">
+          {navColumn}
+        </div>
+      ) : null}
       <div className="flex w-full max-w-[640px] flex-col items-center gap-1">
         <PlayerBar
           player={topPlayer}

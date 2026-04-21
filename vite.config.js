@@ -26,7 +26,7 @@ function copyStockfishLite() {
   };
 }
 
-/** Serves Stockfish from node_modules so /stockfish/* works even if public/stockfish is missing. */
+// Serves Stockfish from node_modules so /stockfish/* works even if public/stockfish is missing
 function stockfishDevMiddleware() {
   return {
     name: "stockfish-dev-middleware",

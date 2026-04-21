@@ -1,5 +1,6 @@
 import { Chess, type Move, WHITE } from "chess.js";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { Colors } from "../constants/chess/colors";
 import { GameStatus } from "../constants/chess/gameStatus";
 import { applyStockfishBestMove } from "../engine/applyStockfishMove";
@@ -8,6 +9,7 @@ import { StockfishClient } from "../engine/stockfishClient";
 import { useCapturedPieces } from "../hooks/useCapturedPieces";
 import { useDelayedGameOverModal } from "../hooks/useDelayedGameOverModal";
 import { useGameStatusFromChess } from "../hooks/useGameStatusFromChess";
+import { ROUTES } from "../routes";
 import type { Player } from "../types/chess/player";
 import type { SquareHighlight } from "../types/chess/squareHighlight";
 import { activeCheckSquare } from "../utils/chess/activeCheckSquare";
@@ -145,6 +147,11 @@ export default function VsComputerChessGame() {
         capturedByBlack={capturedByBlack}
         movePlies={movePlies}
         clocked={false}
+        navColumn={
+          <Link to={ROUTES.home} className="text-sm font-medium text-sky-800 hover:underline">
+            ← Home
+          </Link>
+        }
         sidePanelFooter={
           <label className="flex flex-col gap-2">
             <span className="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-slate-500">

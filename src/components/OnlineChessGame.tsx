@@ -1,5 +1,5 @@
 import { Chess } from "chess.js";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Colors } from "../constants/chess/colors";
 import { GameStatus } from "../constants/chess/gameStatus";
@@ -21,7 +21,7 @@ import GameOverModal from "./GameOverModal";
 
 export default function OnlineChessGame() {
   const { playerId, transport } = useOnlineRuntime();
-  const { room, roomId } = useOnlineRoom();
+  const { room, roomId, actionError, clearActionError } = useOnlineRoom();
 
   const [chess, setChess] = useState(() => new Chess());
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
@@ -29,14 +29,9 @@ export default function OnlineChessGame() {
   const [movePlies, setMovePlies] = useState<string[]>([]);
   const [clocksStarted, setClocksStarted] = useState(false);
   const [lastMoveHighlight, setLastMoveHighlight] = useState<SquareHighlight | null>(null);
-  const lastSyncedRoomVersionRef = useRef(-1);
+  const replaySerialRef = useRef(0);
 
-  const {
-    capturedByWhite,
-    capturedByBlack,
-    reset: resetCaptures,
-    replaceAll,
-  } = useCapturedPieces();
+  const { capturedByWhite, capturedByBlack, replaceAll } = useCapturedPieces();
   const { gameOverModalReady, gameOverDismissed, setGameOverDismissed } =
     useDelayedGameOverModal(gameStatus);
 
@@ -62,13 +57,14 @@ export default function OnlineChessGame() {
     return { color: Colors.BLACK, name: nick };
   }, [room]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!room || !roomGameStarted(room)) return;
-    if (room.v === lastSyncedRoomVersionRef.current) return;
 
-    lastSyncedRoomVersionRef.current = room.v;
-
-    const replayed = replayMovesFromUci(room.moves, `room-${room.v}`);
+    replaySerialRef.current += 1;
+    const replayed = replayMovesFromUci(
+      room.moves,
+      `room-${room.v}-sync-${replaySerialRef.current}`,
+    );
     setChess(replayed.chess);
     replaceAll(replayed.capturedByWhite, replayed.capturedByBlack);
     setLastMoveHighlight(replayed.lastHighlight);
@@ -79,6 +75,8 @@ export default function OnlineChessGame() {
 
     if (room.moves.length > 0) {
       setClocksStarted(true);
+    } else {
+      setClocksStarted(false);
     }
   }, [room, whitePlayer, blackPlayer, replaceAll]);
 
@@ -104,16 +102,9 @@ export default function OnlineChessGame() {
     [room?.moves.length, roomId, transport],
   );
 
-  function restart() {
-    lastSyncedRoomVersionRef.current = -1;
-    setChess(new Chess());
-    setMovePlies([]);
-    resetCaptures();
-    setLastMoveHighlight(null);
-    setGameStatus(GameStatus.ACTIVE);
-    setClocksStarted(false);
-    setCurrentPlayer(whitePlayer);
-  }
+  const requestRestart = useCallback(() => {
+    transport.requestRestart(roomId);
+  }, [transport, roomId]);
 
   const checkSquare = activeCheckSquare(chess, gameStatus);
   const gameOverText = getGameOverModalText(gameStatus);
@@ -143,7 +134,7 @@ export default function OnlineChessGame() {
             if (!open) setGameOverDismissed(true);
           }}
           text={gameOverText}
-          onRematch={restart}
+          onRematch={requestRestart}
           showRematch={false}
         />
       )}
@@ -151,7 +142,7 @@ export default function OnlineChessGame() {
         currentPlayer={currentPlayer}
         whitePlayer={whitePlayer}
         blackPlayer={blackPlayer}
-        restart={restart}
+        restart={requestRestart}
         clocksStarted={clocksStarted}
         gameStatus={gameStatus}
         onOutOfTime={handleOutOfTime}
@@ -160,7 +151,7 @@ export default function OnlineChessGame() {
         movePlies={movePlies}
         invertPlayerBars={myColor === Colors.BLACK}
         initialClockSeconds={room?.timeControlSeconds}
-        lockRestart
+        lockRestart={gameStatus === GameStatus.ACTIVE}
       >
         <BoardComponent
           chess={chess}

@@ -72,7 +72,6 @@ Define it in a **`.env`** or **`.env.local`** file in the project root (Vite con
 
 Online play is implemented against a **separate Node server** that speaks the same wire protocol as this client.
 
-- Expected sibling path in the diploma layout: **`../chess-backend`** (not bundled in this repository).
 - The server uses **Express + Socket.IO**, validates moves with **chess.js**, and emits messages on the **`s2c`** event. The client sends **`c2s`** payloads.
 - Typical dev setup: run the backend (default port **3001** in its code) with CORS allowing **`http://localhost:5173`**, then set:
 

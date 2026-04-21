@@ -40,12 +40,19 @@ export type PingC2sMessage = {
   playerId: PlayerId;
 };
 
+export type RestartGameC2sMessage = {
+  type: "restart_game";
+  roomId: RoomId;
+  playerId: PlayerId;
+};
+
 export type ClientToServerMessage =
   | CreateRoomMessage
   | JoinRoomC2sMessage
   | SyncRoomMessage
   | MoveC2sMessage
-  | PingC2sMessage;
+  | PingC2sMessage
+  | RestartGameC2sMessage;
 
 export type RoomMoveWire = { uci: string; san: string; by: PlayerId };
 

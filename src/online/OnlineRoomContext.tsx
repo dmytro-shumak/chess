@@ -1,4 +1,13 @@
-import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useOnlineRuntime } from "./OnlineRuntimeContext";
 import type { RoomId, ServerToClientMessage } from "./protocol";
 import { applyServerMessage, type ClientRoomState } from "./roomState";
@@ -7,6 +16,8 @@ type OnlineRoomValue = {
   room: ClientRoomState | null;
   roomId: RoomId;
   syncError: string | null;
+  actionError: string | null;
+  clearActionError: () => void;
   roomLoading: boolean;
 };
 
@@ -16,16 +27,35 @@ export function OnlineRoomProvider({ roomId, children }: { roomId: RoomId; child
   const { transport } = useOnlineRuntime();
   const [room, setRoom] = useState<ClientRoomState | null>(null);
   const [syncError, setSyncError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const roomRef = useRef<ClientRoomState | null>(null);
+  roomRef.current = room;
+
+  const clearActionError = useCallback(() => {
+    setActionError(null);
+  }, []);
 
   useEffect(() => {
     setRoom(null);
     setSyncError(null);
+    setActionError(null);
     transport.watchRoom(roomId);
 
     function handleMessage(msg: ServerToClientMessage): void {
       if (msg.type === "error") {
+        if (msg.code === "ROOM_NOT_FOUND") {
+          setSyncError(msg.message);
+          setRoom(null);
+          setActionError(null);
+          return;
+        }
+        if (roomRef.current !== null) {
+          setActionError(msg.message);
+          return;
+        }
         setSyncError(msg.message);
         setRoom(null);
+        setActionError(null);
         return;
       }
       if (
@@ -33,6 +63,7 @@ export function OnlineRoomProvider({ roomId, children }: { roomId: RoomId; child
         (msg.type === "room_created" && msg.roomId.toUpperCase() === roomId.toUpperCase())
       ) {
         setSyncError(null);
+        setActionError(null);
       }
       setRoom((prev) => applyServerMessage(prev, msg, roomId));
     }
@@ -47,8 +78,15 @@ export function OnlineRoomProvider({ roomId, children }: { roomId: RoomId; child
   const roomLoading = room === null && syncError === null;
 
   const value = useMemo(
-    () => ({ room, roomId, syncError, roomLoading }),
-    [room, roomId, syncError, roomLoading],
+    () => ({
+      room,
+      roomId,
+      syncError,
+      actionError,
+      clearActionError,
+      roomLoading,
+    }),
+    [room, roomId, syncError, actionError, clearActionError, roomLoading],
   );
 
   return <OnlineRoomContext.Provider value={value}>{children}</OnlineRoomContext.Provider>;

@@ -10,6 +10,7 @@ export interface IOnlineTransport {
   createRoom(nick: string, timeControlSeconds?: number): Promise<RoomId>;
   joinRoom(roomId: RoomId, nick: string): void;
   sendMove(roomId: RoomId, uci: string, san: string, plyIndex: number): void;
+  requestRestart(roomId: RoomId): void;
 }
 
 export class SocketTransport implements IOnlineTransport {
@@ -151,6 +152,14 @@ export class SocketTransport implements IOnlineTransport {
       uci,
       san,
       plyIndex,
+    });
+  }
+
+  requestRestart(roomId: RoomId): void {
+    this.emitC2s({
+      type: "restart_game",
+      roomId: roomId.toUpperCase(),
+      playerId: this.playerId,
     });
   }
 

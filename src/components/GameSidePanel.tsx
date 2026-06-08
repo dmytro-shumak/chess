@@ -39,7 +39,7 @@ function GameSidePanel({ restartDisabled, onRestart, movePlies, footer }: GameSi
         type="button"
         disabled={restartDisabled}
         onClick={onRestart}
-        className="ui-game-button from-amber-500 via-amber-600 to-amber-900 shadow-glow-amber disabled:pointer-events-none disabled:opacity-40 disabled:grayscale"
+        className="ui-game-button cursor-pointer from-amber-500 via-amber-600 to-amber-900 shadow-glow-amber disabled:pointer-events-none disabled:opacity-40 disabled:grayscale"
       >
         <span className="relative z-10 drop-shadow-sm">Restart</span>
       </button>

@@ -127,7 +127,6 @@ export default function OnlineChessGame() {
           }}
           text={gameOverText}
           onRematch={requestRestart}
-          showRematch={false}
         />
       )}
       <ChessGameLayout

@@ -1,6 +1,6 @@
 export type EngineGoOptions = { movetime?: number; depth?: number };
 
-// Worker script path; BASE_URL matters when the app is not served from /.
+// Worker script path. BASE_URL matters when the app is not served from /.
 function workerScriptUrl(): string {
   const base = import.meta.env.BASE_URL || "/";
   const normalized = base.endsWith("/") ? base : `${base}/`;
@@ -8,16 +8,15 @@ function workerScriptUrl(): string {
   return `${normalized}stockfish/stockfish-18-lite-single.js`;
 }
 
-// Thin UCI client: post lines to Stockfish in a Web Worker, read lines back.
+// Thin UCI client: post lines to Stockfish in a Web Worker, read lines back
 export class StockfishClient {
   private worker: Worker | null = null;
   private readonly listeners = new Set<(line: string) => void>();
   private initPromise: Promise<void> | null = null;
 
-  // One go at a time — queue the next search after the current one finishes.
+  // One go at a time — queue the next search after the current one finishes
   private commandChain: Promise<void> = Promise.resolve();
 
-  // Spin up the worker on first use; reuse it after that.
   private ensureWorker(): Worker {
     if (this.worker) {
       return this.worker;
@@ -47,7 +46,7 @@ export class StockfishClient {
     this.ensureWorker().postMessage(command);
   }
 
-  // Listen for engine lines until you call the returned function.
+  // Listen for engine lines until the returned function is called
   private onLine(handler: (line: string) => void): () => void {
     this.listeners.add(handler);
 
@@ -97,7 +96,6 @@ export class StockfishClient {
       this.post("quit");
     } catch {
       console.error("Error quitting stockfish worker");
-      // quit may throw if worker already dead
     }
 
     this.worker?.terminate();

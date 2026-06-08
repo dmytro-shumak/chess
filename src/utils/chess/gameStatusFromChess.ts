@@ -2,7 +2,6 @@ import type { Chess } from "chess.js";
 import { WHITE } from "chess.js";
 import { GameStatus } from "../../constants/chess/gameStatus";
 
-// Map chess.js game-over flags to GameStatus; classify specific draws before generic isDraw().
 export function gameStatusFromChess(chess: Chess): GameStatus {
   if (!chess.isGameOver()) return GameStatus.ACTIVE;
   if (chess.isCheckmate()) {

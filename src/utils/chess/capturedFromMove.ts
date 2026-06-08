@@ -3,7 +3,7 @@ import { BLACK, PAWN, WHITE } from "chess.js";
 import type { CapturedDisplay } from "../../types/chess/capturedDisplay";
 import { pieceLogo } from "./pieceGlyphs";
 
-// displayKey: unique React key per capture row (e.g. ply).
+// displayKey: unique React key per capture row
 export function capturedDisplayFromMove(move: Move, displayKey: string): CapturedDisplay | null {
   const takesMaterial = move.isCapture() || move.isEnPassant();
   if (!takesMaterial) return null;
